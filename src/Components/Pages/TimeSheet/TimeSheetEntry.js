@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -11,7 +11,6 @@ import {
   IconButton,
   Paper,
   Avatar,
-  LinearProgress,
 } from "@mui/material";
 import dayjs from "dayjs";
 import Navbar from "../../../Navbars/Navbar";
@@ -22,59 +21,66 @@ import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-// import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import UserEntry from "./Modal/UserEntry";
+import axios from "axios";
 
 // ── constants ────────────────────────────────────────────────────────────────
 
 const FONT = "'Poppins', sans-serif";
 const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const STATUS = {
-  Present: {
-    bg: "#F0FDF4",
-    text: "#15803D",
-    border: "#BBF7D0",
-    dot: "#22C55E",
-  },
-  Leave: { bg: "#FFF7ED", text: "#C2410C", border: "#FED7AA", dot: "#F97316" },
-  Absent: { bg: "#FFF1F2", text: "#BE123C", border: "#FECDD3", dot: "#FB7185" },
+const CHIP = {
+  Timesheet: { bg: "#E6F1FB", color: "#0C447C", dot: "#185FA5" },
+  Permission: { bg: "#FAEEDA", color: "#633806", dot: "#BA7517" },
+  Leave: { bg: "#FCEBEB", color: "#791F1F", dot: "#A32D2D" },
+  default: { bg: "#EEEDFE", color: "#3C3489", dot: "#534AB7" },
 };
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-function dayKey(y, m, d) {
-  return `${y}-${m}-${d}`;
-}
+function buildCalendar(apiData) {
+  const firstDay = dayjs(`${apiData.year}-${apiData.month}-01`).day();
+  const calendar = [];
+  let week = [];
 
-function buildMap(rawWeeks, year, month) {
-  const map = {};
-  rawWeeks.flat().forEach((cell) => {
-    if (!cell.day) return;
-    const status = cell.entries?.[0]?.status ?? null;
-    map[dayKey(year, month, cell.day)] = {
-      status,
-      entries: cell.entries ?? [],
-    };
+  for (let i = 0; i < firstDay; i++) week.push(null);
+
+  apiData.days.forEach((item) => {
+    week.push(item);
+    if (week.length === 7) {
+      calendar.push(week);
+      week = [];
+    }
   });
-  return map;
+
+  while (week.length > 0 && week.length < 7) week.push(null);
+  if (week.length) calendar.push(week);
+
+  return calendar;
 }
 
-function buildGrid(year, month, data) {
-  const first = dayjs(`${year}-${month + 1}-01`).day();
-  const total = dayjs(`${year}-${month + 1}-01`).daysInMonth();
-  const cells = [];
-  for (let i = 0; i < first; i++) cells.push(null);
-  for (let d = 1; d <= total; d++) {
-    const k = dayKey(year, month, d);
-    cells.push({ day: d, ...(data[k] || { status: null, entries: [] }) });
-  }
-  while (cells.length % 7 !== 0) cells.push(null);
-  const weeks = [];
-  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
-  return weeks;
+function computeSummary(days) {
+  let present = 0,
+    leaves = 0,
+    totalHours = 0;
+
+  days.forEach(({ entries }) => {
+    if (!entries.length) return;
+
+    const hasLeave = entries.some((e) => e.requestType === "Leave");
+    const hasTimesheet = entries.some((e) => e.requestType === "Timesheet");
+
+    if (hasLeave) leaves++;
+    else if (hasTimesheet) present++;
+
+    entries.forEach((e) => {
+      if (e.hours) totalHours += e.hours;
+    });
+  });
+
+  return { present, leaves, totalHours };
 }
 
 // ── SummaryCard ──────────────────────────────────────────────────────────────
@@ -151,7 +157,6 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
     return (
       <TableCell
         sx={{
-          width: `${100 / 7}%`,
           height: 108,
           border: "1px solid #F1F5F9",
           bgcolor: "#FAFBFC",
@@ -161,33 +166,26 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
     );
   }
 
-  const cfg = cell.status ? STATUS[cell.status] : null;
-  const shown = cell.entries?.slice(0, 2) ?? [];
-  const extra = (cell.entries?.length ?? 0) - 2;
-  const isLeaveAbsent = cell.status === "Leave" || cell.status === "Absent";
+  const entries = cell.entries ?? [];
+  const shown = entries.slice(0, 2);
+  const extra = entries.length - 2;
 
   return (
     <TableCell
       onClick={onClick}
       sx={{
-        width: `${100 / 7}%`,
-        minWidth: `${100 / 7}%`,
-        maxWidth: `${100 / 7}%`,
         height: 108,
         border: "1px solid #F1F5F9",
         verticalAlign: "top",
-        cursor: "pointer",
+        cursor: cell.entries[0]?.requestType == "Leave" ? "" : "pointer",
         p: "8px",
         bgcolor: isWeekend ? "#FAFBFC" : "#fff",
         position: "relative",
         transition: "background 0.15s",
-        "&:hover": {
-          bgcolor: "#F8FAFF",
-          "& .add-hint": { opacity: 1 },
-        },
+        "&:hover": { bgcolor: "#F8FAFF", "& .add-hint": { opacity: 1 } },
       }}
     >
-      {/* Today top accent line */}
+      {/* Today accent */}
       {isToday && (
         <Box
           sx={{
@@ -227,86 +225,64 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
         </Box>
       </Box>
 
-      {/* Leave / Absent chip */}
-      {isLeaveAbsent && cfg && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            px: "6px",
-            py: "4px",
-            bgcolor: cfg.bg,
-            border: `1px solid ${cfg.border}`,
-            borderRadius: "7px",
-          }}
-        >
+      {/* Entry chips */}
+      {shown.map((entry) => {
+        const cfg = CHIP[entry.requestType] ?? CHIP.default;
+        const label = entry.project || entry.requestType;
+
+        return (
           <Box
+            key={entry.id}
             sx={{
-              width: 5,
-              height: 5,
-              borderRadius: "50%",
-              bgcolor: cfg.dot,
-              flexShrink: 0,
-            }}
-          />
-          <Typography
-            sx={{
-              fontSize: "0.62rem",
-              fontFamily: FONT,
-              fontWeight: 600,
-              color: cfg.text,
+              mb: "3px",
+              px: "6px",
+              py: "3px",
+              bgcolor: cfg.bg,
+              borderRadius: "6px",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
             }}
           >
-            {cell.status}
-          </Typography>
-        </Box>
-      )}
-
-      {/* Work entries */}
-      {!isLeaveAbsent &&
-        shown.map((entry, i) => {
-          const ecfg = STATUS[entry.status] ?? STATUS.Present;
-          return (
             <Box
-              key={i}
               sx={{
-                mb: "3px",
-                px: "6px",
-                py: "4px",
-                bgcolor: ecfg.bg,
-                border: `1px solid ${ecfg.border}`,
-                borderRadius: "7px",
+                width: 5,
+                height: 5,
+                borderRadius: "50%",
+                bgcolor: cfg.dot,
+                flexShrink: 0,
+              }}
+            />
+            <Typography
+              sx={{
+                fontSize: "0.62rem",
+                fontFamily: FONT,
+                fontWeight: 600,
+                color: cfg.color,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
+              {label}
+            </Typography>
+            {entry.hours > 0 && (
               <Typography
                 sx={{
-                  fontSize: "0.62rem",
+                  fontSize: "0.57rem",
                   fontFamily: FONT,
-                  fontWeight: 600,
-                  color: ecfg.text,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
+                  color: cfg.color,
+                  opacity: 0.7,
+                  ml: "auto",
+                  flexShrink: 0,
                 }}
               >
-                {entry.project || entry.status}
+                {entry.hours}h
               </Typography>
-              {entry.hours > 0 && (
-                <Typography
-                  sx={{
-                    fontSize: "0.57rem",
-                    fontFamily: FONT,
-                    color: ecfg.text,
-                    opacity: 0.75,
-                  }}
-                >
-                  {entry.hours}h
-                </Typography>
-              )}
-            </Box>
-          );
-        })}
+            )}
+          </Box>
+        );
+      })}
 
       {extra > 0 && (
         <Typography
@@ -321,10 +297,10 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
         </Typography>
       )}
 
-      {/* Hover hint for empty weekday */}
-      {!cell.status && !isWeekend && (
+      {/* Hover hint */}
+      {!entries.length && !isWeekend && (
         <Typography
-          className='add-hint'
+          className="add-hint"
           sx={{
             fontSize: "0.6rem",
             fontFamily: FONT,
@@ -341,96 +317,54 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
   );
 }
 
-// ── main component ────────────────────────────────────────────────────────────
+// ── main ─────────────────────────────────────────────────────────────────────
 
 export default function TimeSheetEntry() {
   const today = dayjs();
   const [selectionDate, setSelectionDate] = useState(dayjs());
   const [open1, setOpen1] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [calendarRows, setCalendarRows] = useState([]);
+  const [summary, setSummary] = useState({
+    present: 0,
+    leaves: 0,
+    totalHours: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  const [passData, setPassData] = useState(null);
 
-  const year = selectionDate.year();
-  const month = selectionDate.month(); // 0-indexed
+  const fetchTimesheet = () => {
+    setLoading(true);
+    axios
+      .post("http://10.10.0.47:7000/timesheet/calendar", {
+        year: selectionDate.year(),
+        month: selectionDate.format("MM"),
+        employeeId: 50,
+      })
+      .then((res) => {
+        setCalendarRows(buildCalendar(res.data));
+        setSummary(computeSummary(res.data.days));
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  };
 
-  const [dayData] = useState(() =>
-    buildMap(
-      [
-        [
-          { day: null, entries: [] },
-          { day: null, entries: [] },
-          {
-            day: 1,
-            entries: [
-              { project: "Vendor Portal", hours: 8, status: "Present" },
-            ],
-          },
-          {
-            day: 2,
-            entries: [
-              { project: "JWT Integration", hours: 7, status: "Present" },
-            ],
-          },
-          { day: 3, entries: [{ project: "", hours: 0, status: "Leave" }] },
-          {
-            day: 4,
-            entries: [
-              { project: "Dashboard UI", hours: 4, status: "Present" },
-              { project: "API Testing", hours: 3, status: "Present" },
-            ],
-          },
-          { day: 5, entries: [] },
-        ],
-        [
-          {
-            day: 6,
-            entries: [{ project: "Bug Fixing", hours: 8, status: "Present" }],
-          },
-          { day: 7, entries: [] },
-          { day: 8, entries: [{ project: "", hours: 0, status: "Leave" }] },
-          {
-            day: 9,
-            entries: [
-              { project: "Timesheet Module", hours: 5, status: "Present" },
-              { project: "Testing", hours: 2, status: "Present" },
-              { project: "Testing", hours: 2, status: "Present" },
-              { project: "Testing", hours: 2, status: "Present" },
-              { project: "Testing", hours: 2, status: "Present" },
-            ],
-          },
-          { day: 10, entries: [] },
-          { day: 11, entries: [] },
-          { day: 12, entries: [] },
-        ],
-      ],
-      year,
-      month,
-    ),
-  );
+  useEffect(() => {
+    fetchTimesheet();
+  }, [selectionDate]);
 
-  const stats = useMemo(() => {
-    const total = selectionDate.daysInMonth();
-    let working = 0,
-      present = 0,
-      leaves = 0,
-      hours = 0;
-    for (let d = 1; d <= total; d++) {
-      const dow = dayjs(`${year}-${month + 1}-${d}`).day();
-      if (dow !== 0 && dow !== 6) working++;
-      const data = dayData[dayKey(year, month, d)];
-      if (data?.status === "Present") {
-        present++;
-        data.entries.forEach((e) => (hours += e.hours || 0));
-      }
-      if (data?.status === "Leave") leaves++;
+  const handleDayClick = (cell) => {
+    if (!cell) return;
+    if (cell.entries[0]?.requestType == "Leave") {
+      return;
     }
-    const attendance = working > 0 ? Math.round((present / working) * 100) : 0;
-    return { working, present, leaves, hours, attendance };
-  }, [dayData, selectionDate, year, month]);
 
-  const grid = useMemo(
-    () => buildGrid(year, month, dayData),
-    [dayData, year, month],
-  );
+    console.log(cell);
+
+    setSelectedDay(cell);
+    setPassData(cell);
+    setOpen1(true);
+  };
 
   return (
     <Navbar>
@@ -478,14 +412,14 @@ export default function TimeSheetEntry() {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
             <IconButton
-              size='small'
+              size="small"
               onClick={() => setSelectionDate((d) => d.subtract(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
                 borderRadius: "9px",
                 width: 32,
                 height: 32,
-                "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
+                "&:hover": { bgcolor: "#F1F5F9" },
               }}
             >
               <ChevronLeftIcon sx={{ fontSize: "1rem", color: "#64748B" }} />
@@ -494,7 +428,7 @@ export default function TimeSheetEntry() {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 views={["year", "month"]}
-                format='YYYY-MM'
+                format="YYYY-MM"
                 value={selectionDate}
                 onChange={(d) => d && setSelectionDate(d)}
                 slotProps={{ textField: { size: "small" } }}
@@ -525,14 +459,14 @@ export default function TimeSheetEntry() {
             </LocalizationProvider>
 
             <IconButton
-              size='small'
+              size="small"
               onClick={() => setSelectionDate((d) => d.add(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
                 borderRadius: "9px",
                 width: 32,
                 height: 32,
-                "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
+                "&:hover": { bgcolor: "#F1F5F9" },
               }}
             >
               <ChevronRightIcon sx={{ fontSize: "1rem", color: "#64748B" }} />
@@ -544,28 +478,28 @@ export default function TimeSheetEntry() {
         <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
           <SummaryCard
             icon={<CalendarMonthIcon />}
-            label='Working Days'
-            value={stats.working}
-            color='#6366F1'
+            label="Working Days"
+            value={summary.present + summary.leaves}
+            color="#6366F1"
           />
           <SummaryCard
             icon={<EventBusyIcon />}
-            label='Present'
-            value={stats.present}
-            color='#22C55E'
+            label="Present"
+            value={summary.present}
+            color="#22C55E"
           />
           <SummaryCard
             icon={<EventBusyIcon />}
-            label='Leaves'
-            value={stats.leaves}
-            color='#F97316'
+            label="Leaves"
+            value={summary.leaves}
+            color="#F97316"
           />
           <SummaryCard
             icon={<AccessTimeIcon />}
-            label='Total Hours'
-            value={stats.hours}
-            color='#0EA5E9'
-            sub='hrs'
+            label="Total Hours"
+            value={summary.totalHours}
+            color="#0EA5E9"
+            sub="hrs"
           />
         </Box>
 
@@ -579,64 +513,63 @@ export default function TimeSheetEntry() {
             bgcolor: "#fff",
           }}
         >
-          <Table sx={{ tableLayout: "fixed", width: "100%" }}>
+          {loading && (
+            <Box
+              sx={{
+                height: 3,
+                bgcolor: "#6366F1",
+                animation: "pulse 1s infinite",
+              }}
+            />
+          )}
+
+          <Table
+            sx={{
+              borderCollapse: "collapse",
+              tableLayout: "fixed",
+              width: "100%",
+            }}
+          >
             <TableHead>
               <TableRow>
-                {WEEK_DAYS.map((d, i) => (
+                {WEEK_DAYS.map((day, i) => (
                   <TableCell
-                    key={d}
-                    align='center'
+                    key={day}
+                    align="center"
                     sx={{
-                      fontWeight: 600,
                       fontFamily: FONT,
                       fontSize: "0.7rem",
+                      fontWeight: 600,
                       color: i === 0 || i === 6 ? "#CBD5E1" : "#64748B",
-                      letterSpacing: "0.05em",
-                      py: 1.4,
-                      border: "none",
                       bgcolor: "#FAFBFC",
-                      borderBottom: "1.5px solid #F1F5F9",
+                      border: "1px solid #F1F5F9",
+                      py: 1.2,
                     }}
                   >
-                    {d}
+                    {day}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {grid.map((week, wi) => (
+              {calendarRows.map((week, wi) => (
                 <TableRow key={wi}>
                   {week.map((cell, ci) => {
-                    if (!cell) {
-                      return (
-                        <TableCell
-                          key={ci}
-                          sx={{
-                            width: `${100 / 7}%`,
-                            height: 108,
-                            border: "1px solid #F1F5F9",
-                            bgcolor: "#FAFBFC",
-                            p: 0,
-                          }}
-                        />
-                      );
-                    }
                     const isToday =
-                      cell.day === today.date() &&
-                      month === today.month() &&
-                      year === today.year();
-                    const dow = dayjs(`${year}-${month + 1}-${cell.day}`).day();
+                      cell &&
+                      today.date() === cell.day &&
+                      today.month() === selectionDate.month() &&
+                      today.year() === selectionDate.year();
+                    const isWeekend = ci === 0 || ci === 6;
+
                     return (
                       <DayCell
                         key={ci}
                         cell={cell}
                         isToday={isToday}
-                        isWeekend={dow === 0 || dow === 6}
-                        onClick={() => {
-                          setSelectedDay(cell.day);
-                          setOpen1(true);
-                        }}
+                        isWeekend={isWeekend}
+                        onClick={() => handleDayClick(cell)}
                       />
                     );
                   })}
@@ -648,26 +581,32 @@ export default function TimeSheetEntry() {
 
         {/* ── Legend ── */}
         <Box sx={{ display: "flex", gap: 2.5, mt: 1.5, flexWrap: "wrap" }}>
-          {Object.entries(STATUS).map(([label, cfg]) => (
-            <Box
-              key={label}
-              sx={{ display: "flex", alignItems: "center", gap: 0.6 }}
-            >
+          {Object.entries(CHIP)
+            .filter(([k]) => k !== "default")
+            .map(([label, cfg]) => (
               <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  bgcolor: cfg.dot,
-                }}
-              />
-              <Typography
-                sx={{ fontSize: "0.68rem", fontFamily: FONT, color: "#94A3B8" }}
+                key={label}
+                sx={{ display: "flex", alignItems: "center", gap: 0.6 }}
               >
-                {label}
-              </Typography>
-            </Box>
-          ))}
+                <Box
+                  sx={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: "50%",
+                    bgcolor: cfg.dot,
+                  }}
+                />
+                <Typography
+                  sx={{
+                    fontSize: "0.68rem",
+                    fontFamily: FONT,
+                    color: "#94A3B8",
+                  }}
+                >
+                  {label}
+                </Typography>
+              </Box>
+            ))}
         </Box>
 
         {/* ── Modal ── */}
@@ -678,7 +617,6 @@ export default function TimeSheetEntry() {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              // width: { xs: "95%", sm: "80%", md: "65%" },
               width: "90%",
               bgcolor: "#fff",
               borderRadius: "18px",
@@ -687,19 +625,13 @@ export default function TimeSheetEntry() {
               outline: "none",
             }}
           >
-            {/* Modal Header */}
-            <Box
-              sx={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                borderBottom: "1.5px solid #F1F5F9",
-                bgcolor: "#FAFBFC",
-              }}
-            >
+            <Box sx={{ position: "absolute", top: 10, right: 10 }}>
               <IconButton
-                size='small'
-                onClick={() => setOpen1(false)}
+                size="small"
+                onClick={() => {
+                  setOpen1(false);
+                  fetchTimesheet();
+                }}
                 sx={{
                   bgcolor: "#F1F5F9",
                   border: "1.5px solid #E2E8F0",
@@ -714,10 +646,12 @@ export default function TimeSheetEntry() {
                 />
               </IconButton>
             </Box>
-
-            {/* Modal Body */}
             <Box sx={{ p: 4.7 }}>
-              <UserEntry />
+              <UserEntry
+                day={selectedDay}
+                onClose={() => setOpen1(false)}
+                passData={passData}
+              />
             </Box>
           </Box>
         </Modal>

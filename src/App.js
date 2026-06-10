@@ -18,14 +18,14 @@ function App() {
     <BrowserRouter>
       <UserContext.Provider value={{ loading, setLoading }}>
         <Routes>
-          <Route path='/' element={<Login />} />
-          <Route path='/Dashboard' element={<Dashboard />} />
-          <Route path='/Workunit' element={<Workunit />} />
-          <Route path='/Users' element={<MainPage />} />
-          <Route path='/Clientpage' element={<Clientpage />} />
-          <Route path='/ProjectsPage' element={<ProjectsPage />} />
-          <Route path='/TimeSheetEntry' element={<TimeSheetEntry />} />
-          <Route path='/ErrorHandling' element={<ErrorHandling />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/Workunit" element={<Workunit />} />
+          <Route path="/Users" element={<MainPage />} />
+          <Route path="/Clientpage" element={<Clientpage />} />
+          <Route path="/ProjectsPage" element={<ProjectsPage />} />
+          <Route path="/TimeSheetEntry" element={<TimeSheetEntry />} />
+          <Route path="/ErrorHandling" element={<ErrorHandling />} />
         </Routes>
       </UserContext.Provider>
     </BrowserRouter>

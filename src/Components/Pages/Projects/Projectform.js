@@ -5,6 +5,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { useNavigate } from "react-router-dom";
+
 // import { Box, Typography, TextField, MenuItem } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
@@ -29,6 +31,7 @@ export default function Projectform({
   selectedProject,
   mode,
   refreshProjects,
+  onSuccess,
 }) {
   const [errors, setErrors] = useState({});
   const [formdata, setFormdata] = useState({
@@ -59,6 +62,7 @@ export default function Projectform({
       });
     }
   }, [selectedProject, mode]);
+  const navigate = useNavigate();
 
   // Validation
   const validate = () => {
@@ -112,6 +116,7 @@ export default function Projectform({
       })
       .catch((err) => {
         console.log(err);
+        navigate("/ErrorHandling");
       });
   };
 
@@ -145,9 +150,11 @@ export default function Projectform({
         .then((res) => {
           console.log(res.data);
           refreshProjects();
+          onSuccess();
         })
         .catch((err) => {
           console.log(err);
+          navigate("/ErrorHandling");
         });
       // if (mode === "edit") {
       //   axios.put(
@@ -157,6 +164,7 @@ export default function Projectform({
       // } else {
       //   axios.post("http://10.10.0.54:7000/project/newproject", payload);
       // }
+      handleClose();
     }
   };
 
@@ -248,7 +256,7 @@ export default function Projectform({
             sx={{
               border: "0.2px solid #d9d9d9",
               padding: 2,
-              borderRadius: "10px",
+              borderRadius: "12px",
             }}
           >
             <Box

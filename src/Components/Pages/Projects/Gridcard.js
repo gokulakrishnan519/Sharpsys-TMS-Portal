@@ -32,7 +32,7 @@ function Gridcard(props) {
   return (
     <Box
       sx={{
-        width: "90%",
+        width: "100%",
         height: "auto",
         border: "0.5px solid rgba(0,0,0,0.08)",
         // boxShadow:1,
@@ -61,7 +61,7 @@ function Gridcard(props) {
         }}
       >
         <Typography
-          variant='h5'
+          variant="h5"
           sx={{
             color: "#000000",
             fontSize: "20px",
@@ -89,11 +89,11 @@ function Gridcard(props) {
               onEdit(project);
             }}
             sx={{
-              fontSize: "small",
+              fontSize: "20px",
               borderRadius: "20px",
               padding: 0.5,
-              background: "#a4fcfe",
-              color: "#028587",
+              background: "#14dde1",
+              color: "#011e1e",
               cursor: "pointer",
             }}
           />

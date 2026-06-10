@@ -18,9 +18,17 @@ import {
 import { styled } from "@mui/material/styles";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CloseIcon from "@mui/icons-material/Close";
+import { useNavigate } from "react-router-dom";
 
-export default function Clientform({ open, handleClose }) {
+export default function Clientform({
+  open,
+  handleClose,
+  refreshClient,
+  onSuccess,
+}) {
+  // const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     company_name: "",
     industry: "",
@@ -105,9 +113,14 @@ export default function Clientform({ open, handleClose }) {
         .post("http://10.10.0.47:7000/client/creation", payload)
         .then((res) => {
           console.log(res.data);
+          refreshClient();
+          handleClose();
+          // setShowSuccess(true);
+          onSuccess();
         })
         .catch((err) => {
           console.log(err);
+          navigate("/ErrorHandling");
         });
     }
   };

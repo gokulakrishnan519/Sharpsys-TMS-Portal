@@ -17,6 +17,7 @@ import {
   Button,
   Modal,
   Grid,
+  Dialog,
 } from "@mui/material";
 
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
@@ -33,7 +34,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "90%",
+  // width: "90%",
   bgcolor: "background.paper",
   //   border: "2px solid #000",
   boxShadow: 24,
@@ -41,12 +42,89 @@ const style = {
   borderRadius: "10px",
 };
 
+function Success({ handleClose }) {
+  return (
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          py: 4,
+          gap: 1.5,
+        }}
+      >
+        <Box
+          sx={{
+            width: 52,
+            height: 52,
+            borderRadius: "50%",
+            background: "#f0fdf4",
+            border: "2px solid #bbf7d0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "24px",
+          }}
+        >
+          ✅
+        </Box>
+
+        <Typography
+          sx={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "15px",
+            fontWeight: 600,
+            color: "#16a34a",
+          }}
+        >
+          User Successfully Created!
+        </Typography>
+
+        <Typography
+          sx={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "13px",
+            color: "#6b7280",
+            textAlign: "center",
+          }}
+        >
+          Go Back to User Page
+        </Typography>
+        <Button
+          onClick={handleClose}
+          variant="contained"
+          sx={{
+            mt: 2,
+            minWidth: 100,
+            height: 38,
+            borderRadius: "8px",
+            textTransform: "none",
+            fontFamily: "'Poppins', sans-serif",
+            fontSize: "13px",
+            fontWeight: 600,
+            backgroundColor: "#16a34a",
+            boxShadow: "none",
+
+            "&:hover": {
+              backgroundColor: "#15803d",
+              boxShadow: "none",
+            },
+          }}
+        >
+          OK
+        </Button>
+      </Box>
+    </>
+  );
+}
+
 export default function UserManagementHeader() {
   const [viewType, setViewType] = useState("user");
   const [open, setOpen] = React.useState(false);
   const [userList, setUserList] = useState(null);
-  const { Loading, setLoading } = React.useContext(UserContext);
-
+  const { loading, setLoading } = React.useContext(UserContext);
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleOpen = () => setOpen(true);
@@ -63,9 +141,8 @@ export default function UserManagementHeader() {
     axios
       .get("http://10.10.0.47:7000/userlist")
       .then((res) => {
-        console.log(res);
         setUserList(res.data);
-        setLoading(false);
+        // setLoading(false);
       })
       .catch((err) => {
         const errorMessage =
@@ -74,9 +151,13 @@ export default function UserManagementHeader() {
         console.log(err);
         // navigate("/ErrorHandling");
         sessionStorage.setItem("errormessge", errorMessage);
-        setLoading(false);
       });
   };
+
+  // useEffect(() => {
+  //   userListpage();
+  // }, []);
+
   useEffect(() => {
     userListpage();
   }, []);
@@ -88,6 +169,7 @@ export default function UserManagementHeader() {
           background: "#ffff",
           borderRadius: "16px 16px 0 0",
           overflow: "hidden",
+          marginTop: 1,
         }}
       >
         {/* Header */}
@@ -103,10 +185,9 @@ export default function UserManagementHeader() {
           {/* Title */}
           <Typography
             sx={{
-              fontSize: "1.6rem",
-              fontWeight: 600,
-              color: "#2e2e2e",
-              fontFamily: "Poppins, sans-serif",
+              fontSize: "20px",
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: 500,
             }}
           >
             User Management
@@ -137,7 +218,7 @@ export default function UserManagementHeader() {
             {/* Button */}
             <Box>
               <Button
-                variant='contained'
+                variant="contained"
                 startIcon={<AddIcon sx={{ fontSize: "1rem" }} />}
                 onClick={() => {
                   setOpen(true);
@@ -212,7 +293,7 @@ export default function UserManagementHeader() {
 
                 {/* Table */}
                 <TableContainer>
-                  <Table size='small'>
+                  <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell sx={headerStyle}>User ID</TableCell>
@@ -246,8 +327,8 @@ export default function UserManagementHeader() {
           <Modal
             open={open}
             onClose={handleClose}
-            aria-labelledby='modal-modal-title'
-            aria-describedby='modal-modal-description'
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
           >
             <Box sx={style}>
               <Grid
@@ -264,11 +345,23 @@ export default function UserManagementHeader() {
               >
                 <CloseOutlinedIcon />
               </Grid>
-              <UserCreationModal />
+              <UserCreationModal
+                onSuccess={() => setShowSuccess(true)}
+                handleClose={handleClose}
+              />
             </Box>
           </Modal>
         </div>
       </Box>
+      <Dialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        {/* <Success onClose={() => setShowSuccess(false)} /> */}
+        <Success handleClose={() => setShowSuccess(false)} />
+      </Dialog>
     </div>
   );
 }
