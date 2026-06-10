@@ -15,7 +15,10 @@ import {
   Dialog,
   Button,
   DialogActions,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 
@@ -72,7 +75,7 @@ const Navbar = ({ children }) => {
 
       {/* Sidebar */}
       <Drawer
-        variant="permanent"
+        variant='permanent'
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -95,9 +98,9 @@ const Navbar = ({ children }) => {
           }}
         >
           <Box
-            component="img"
+            component='img'
             src={main_logo}
-            alt="logo"
+            alt='logo'
             sx={{
               width: 200,
               objectFit: "contain",
@@ -193,7 +196,7 @@ const Navbar = ({ children }) => {
         {/* Navbar */}
 
         <AppBar
-          position="fixed"
+          position='fixed'
           elevation={0}
           sx={{
             backgroundColor: "#ffffff",
@@ -211,7 +214,7 @@ const Navbar = ({ children }) => {
             }}
           >
             <Typography
-              variant="h5"
+              variant='h5'
               sx={{
                 fontWeight: 600,
                 fontFamily: "Poppins, sans-serif",
@@ -220,7 +223,7 @@ const Navbar = ({ children }) => {
               {sessionStorage.getItem("page_name")}
             </Typography>
 
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box display='flex' alignItems='center' gap={2}>
               {/* <IconButton>
                 <SearchIcon sx={{ fontSize: 28, color: "#222" }} />
               </IconButton>
@@ -236,22 +239,68 @@ const Navbar = ({ children }) => {
                   sx={{ fontSize: 28, color: "#2e2e2e" }}
                 />
               </IconButton>
-              <Dialog open={open} onClose={handleClose}>
-                <Typography sx={{ p: 2 }}>Are You sure?</Typography>
+              <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth='xs'
+                fullWidth
+                PaperProps={{
+                  sx: {
+                    borderRadius: 3,
+                    p: 1,
+                  },
+                }}
+              >
+                <DialogTitle
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    fontWeight: 600,
+                    fontFamily: "Poppins",
+                  }}
+                >
+                  <LogoutOutlinedIcon color='error' />
+                  Confirm Logout
+                </DialogTitle>
+
+                <DialogContent>
+                  <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    sx={{ fontFamily: "Poppins" }}
+                  >
+                    Are you sure you want to log out?
+                  </Typography>
+                </DialogContent>
+
                 <DialogActions sx={{ px: 3, pb: 2 }}>
-                  <Button onClick={handleClose} variant="outlined">
-                    No
+                  <Button
+                    onClick={handleClose}
+                    variant='outlined'
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 2,
+                      minWidth: 90,
+                    }}
+                  >
+                    Cancel
                   </Button>
 
                   <Button
-                    variant="contained"
-                    color="error"
+                    variant='contained'
+                    color='error'
                     onClick={() => {
                       sessionStorage.clear();
                       navigate("/");
                     }}
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 2,
+                      minWidth: 90,
+                    }}
                   >
-                    Yes
+                    Logout
                   </Button>
                 </DialogActions>
               </Dialog>

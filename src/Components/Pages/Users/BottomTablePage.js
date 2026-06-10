@@ -93,7 +93,7 @@ function Success({ handleClose }) {
         </Typography>
         <Button
           onClick={handleClose}
-          variant="contained"
+          variant='contained'
           sx={{
             mt: 2,
             minWidth: 100,
@@ -218,7 +218,7 @@ export default function UserManagementHeader() {
             {/* Button */}
             <Box>
               <Button
-                variant="contained"
+                variant='contained'
                 startIcon={<AddIcon sx={{ fontSize: "1rem" }} />}
                 onClick={() => {
                   setOpen(true);
@@ -293,7 +293,7 @@ export default function UserManagementHeader() {
 
                 {/* Table */}
                 <TableContainer>
-                  <Table size="small">
+                  <Table size='small'>
                     <TableHead>
                       <TableRow>
                         <TableCell sx={headerStyle}>User ID</TableCell>
@@ -327,8 +327,8 @@ export default function UserManagementHeader() {
           <Modal
             open={open}
             onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
+            aria-labelledby='modal-modal-title'
+            aria-describedby='modal-modal-description'
           >
             <Box sx={style}>
               <Grid
@@ -356,7 +356,7 @@ export default function UserManagementHeader() {
       <Dialog
         open={showSuccess}
         onClose={() => setShowSuccess(false)}
-        maxWidth="xs"
+        maxWidth='xs'
         fullWidth
       >
         {/* <Success onClose={() => setShowSuccess(false)} /> */}

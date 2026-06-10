@@ -188,10 +188,10 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
           maxWidth: "650px",
         }}
       >
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component='form' onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             {/* Employer ID */}
-            <Grid size={{ lg: 6, xs: 12, md: 12, sm: 12 }}>
+            <Grid size={{ lg: 6, xs: 6, md: 6, sm: 6 }}>
               <Typography
                 sx={{
                   mb: 0.8,
@@ -205,8 +205,8 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
               <TextField
                 fullWidth
-                size="small"
-                placeholder="Employer ID"
+                size='small'
+                placeholder='Employer ID'
                 value={formData.employerId}
                 onChange={(e) => {
                   setFormData({
@@ -241,7 +241,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
             </Grid>
 
             {/* Employer Name */}
-            <Grid size={{ lg: 6, xs: 12, md: 12, sm: 12 }}>
+            <Grid size={{ lg: 6, xs: 6, md: 6, sm: 6 }}>
               <Typography
                 sx={{
                   mb: 0.8,
@@ -255,8 +255,8 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
               <TextField
                 fullWidth
-                size="small"
-                placeholder="Employer Name"
+                size='small'
+                placeholder='Employer Name'
                 value={formData.employerName}
                 onChange={(e) => {
                   setFormData({
@@ -305,8 +305,8 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
               <TextField
                 fullWidth
-                size="small"
-                placeholder="Employer Email"
+                size='small'
+                placeholder='Employer Email'
                 value={formData.employerEmail}
                 onChange={(e) => {
                   setFormData({
@@ -354,7 +354,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
               </Typography>
 
               <Autocomplete
-                size="small"
+                size='small'
                 options={employeeDepartmentList || []}
                 value={formData.department || null}
                 onChange={(e, newValue) => {
@@ -393,7 +393,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Select Department"
+                    placeholder='Select Department'
                     error={!!errors.department}
                     helperText={errors.department}
                   />
@@ -415,7 +415,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
               </Typography>
 
               <Autocomplete
-                size="small"
+                size='small'
                 options={empoyeeRoleList || []}
                 value={formData.role || null}
                 onChange={(e, newValue) => {
@@ -454,7 +454,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Select Role"
+                    placeholder='Select Role'
                     error={!!errors.role}
                     helperText={errors.role}
                   />
@@ -477,8 +477,8 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
               <TextField
                 fullWidth
-                size="small"
-                placeholder="Enter Responsibility"
+                size='small'
+                placeholder='Enter Responsibility'
                 value={formData.responsibility}
                 onChange={(e) => {
                   setFormData({
@@ -527,9 +527,9 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
               <TextField
                 fullWidth
-                type="password"
-                size="small"
-                placeholder="Enter Password"
+                type='password'
+                size='small'
+                placeholder='Enter Password'
                 value={formData.password}
                 onChange={(e) => {
                   setFormData({
@@ -566,8 +566,8 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
             {/* Submit Button */}
             <Grid size={{ lg: 12, xs: 12, md: 12, sm: 12 }}>
               <Button
-                type="submit"
-                variant="contained"
+                type='submit'
+                variant='contained'
                 sx={{
                   color: "white",
                   background: "#ff2d55",
