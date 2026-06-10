@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -68,6 +68,12 @@ const Navbar = ({ children }) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    if (!sessionStorage.getItem("departmentId")) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -282,6 +288,7 @@ const Navbar = ({ children }) => {
                       textTransform: "none",
                       borderRadius: 2,
                       minWidth: 90,
+                      fontFamily: "Poppins, sans-serif",
                     }}
                   >
                     Cancel
@@ -298,6 +305,7 @@ const Navbar = ({ children }) => {
                       textTransform: "none",
                       borderRadius: 2,
                       minWidth: 90,
+                      fontFamily: "Poppins, sans-serif",
                     }}
                   >
                     Logout

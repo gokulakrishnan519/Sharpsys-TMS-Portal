@@ -300,6 +300,7 @@ export default function UserManagementHeader() {
                         <TableCell sx={headerStyle}>User Name</TableCell>
                         <TableCell sx={headerStyle}>Role</TableCell>
                         <TableCell sx={headerStyle}>Responsibility</TableCell>
+                        <TableCell sx={headerStyle}>Employee Email</TableCell>
                       </TableRow>
                     </TableHead>
 
@@ -313,6 +314,9 @@ export default function UserManagementHeader() {
                           <TableCell sx={cellStyle}>{row.RoleName}</TableCell>
                           <TableCell sx={cellStyle}>
                             {row.Responsibility}
+                          </TableCell>
+                          <TableCell sx={cellStyle}>
+                            {row.EmployeeEmail}
                           </TableCell>
                         </TableRow>
                       ))}

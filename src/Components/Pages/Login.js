@@ -132,6 +132,9 @@ export default function Login() {
         // alert(res.data.message);
         if (res.data.message !== "Invalid email or password") {
           navigate("/Users");
+          sessionStorage.setItem("employeeId", res.data.employeeId);
+          sessionStorage.setItem("departmentId", res.data.departmentId);
+          sessionStorage.setItem("roleId", res.data.roleId);
         } else {
           setErrorMessage(res.data.message);
           setOpenDialog(true);
