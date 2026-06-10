@@ -23,6 +23,7 @@ import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import { useNavigate } from "react-router-dom";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import axios from "axios";
 
 const theme = createTheme({
   palette: {
@@ -39,7 +40,7 @@ const DEMO_ID = "admin";
 const DEMO_PW = "1234";
 
 export default function Login() {
-  const [employeeId, setEmployeeId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(false);
@@ -49,11 +50,24 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    navigate("/Users");
-    // if (!employeeId || !password) {
-    //   setError("Please fill all fields");
-    //   return;
-    // }
+    const payload = {
+      employeeemail: email,
+      password: password,
+    };
+
+    await axios
+      .post("http://10.10.0.47:7000/login", payload)
+      .then((res) => {
+        console.log(res.data);
+        // alert(res.data.message);
+        navigate("/Users");
+      })
+      .catch((err) => {
+        console.log(err);
+        // alert("Email or Password are incorrect!");
+      });
+    // navigate("/Users");
+
     // setError("");
     // setLoading(true);
     // await new Promise((r) => setTimeout(r, 1500));
@@ -88,7 +102,7 @@ export default function Login() {
         >
           <CardContent sx={{ p: 3 }}>
             {/* Logo */}
-            <Box textAlign='center' mb={3}>
+            <Box textAlign="center" mb={3}>
               <Box
                 sx={{
                   width: 50,
@@ -105,21 +119,21 @@ export default function Login() {
                 <AccessTimeOutlinedIcon sx={{ color: "#fff", fontSize: 26 }} />
               </Box>
 
-              <Typography variant='h6' fontWeight={700} color='#fff'>
+              <Typography variant="h6" fontWeight={700} color="#fff">
                 TimeTrack Pro
               </Typography>
 
-              <Typography variant='body2' sx={{ color: "#94A3B8", mt: 0.5 }}>
+              <Typography variant="body2" sx={{ color: "#94A3B8", mt: 0.5 }}>
                 Timesheet Management
               </Typography>
             </Box>
 
-            <Typography variant='body2' sx={{ color: "#CBD5E1", mb: 2 }}>
+            <Typography variant="body2" sx={{ color: "#CBD5E1", mb: 2 }}>
               Sign in to continue
             </Typography>
 
             {error && (
-              <Alert severity='error' sx={{ mb: 2 }}>
+              <Alert severity="error" sx={{ mb: 2 }}>
                 {error}
               </Alert>
             )}
@@ -127,14 +141,14 @@ export default function Login() {
             {/* Employee ID */}
             <TextField
               fullWidth
-              size='small'
-              placeholder='Employee ID'
-              value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
+              size="small"
+              placeholder="Email ID"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               sx={{ mb: 2 }}
               InputProps={{
                 startAdornment: (
-                  <InputAdornment position='start'>
+                  <InputAdornment position="start">
                     <BadgeOutlinedIcon
                       sx={{ color: "#64748B", fontSize: 20 }}
                     />
@@ -146,25 +160,25 @@ export default function Login() {
             {/* Password */}
             <TextField
               fullWidth
-              size='small'
-              placeholder='Password'
+              size="small"
+              placeholder="Password"
               type={showPw ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               sx={{ mb: 1 }}
               InputProps={{
                 startAdornment: (
-                  <InputAdornment position='start'>
+                  <InputAdornment position="start">
                     <LockOutlinedIcon sx={{ color: "#64748B", fontSize: 20 }} />
                   </InputAdornment>
                 ),
                 endAdornment: (
-                  <InputAdornment position='end'>
+                  <InputAdornment position="end">
                     <IconButton onClick={() => setShowPw(!showPw)}>
                       {showPw ? (
-                        <VisibilityOffOutlinedIcon fontSize='small' />
+                        <VisibilityOffOutlinedIcon fontSize="small" />
                       ) : (
-                        <VisibilityOutlinedIcon fontSize='small' />
+                        <VisibilityOutlinedIcon fontSize="small" />
                       )}
                     </IconButton>
                   </InputAdornment>
@@ -175,7 +189,7 @@ export default function Login() {
             {/* Button */}
             <Button
               fullWidth
-              variant='contained'
+              variant="contained"
               onClick={handleLogin}
               disabled={loading}
               sx={{

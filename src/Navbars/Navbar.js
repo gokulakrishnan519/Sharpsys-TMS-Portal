@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -12,6 +12,9 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
+  Dialog,
+  Button,
+  DialogActions,
 } from "@mui/material";
 
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
@@ -53,8 +56,15 @@ const menuItems = [
 
 const Navbar = ({ children }) => {
   const navigate = useNavigate();
-
+  const [open, setOpen] = useState(false);
   const location = useLocation();
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -62,7 +72,7 @@ const Navbar = ({ children }) => {
 
       {/* Sidebar */}
       <Drawer
-        variant='permanent'
+        variant="permanent"
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -85,9 +95,9 @@ const Navbar = ({ children }) => {
           }}
         >
           <Box
-            component='img'
+            component="img"
             src={main_logo}
-            alt='logo'
+            alt="logo"
             sx={{
               width: 200,
               objectFit: "contain",
@@ -183,7 +193,7 @@ const Navbar = ({ children }) => {
         {/* Navbar */}
 
         <AppBar
-          position='fixed'
+          position="fixed"
           elevation={0}
           sx={{
             backgroundColor: "#ffffff",
@@ -201,7 +211,7 @@ const Navbar = ({ children }) => {
             }}
           >
             <Typography
-              variant='h5'
+              variant="h5"
               sx={{
                 fontWeight: 600,
                 fontFamily: "Poppins, sans-serif",
@@ -210,7 +220,7 @@ const Navbar = ({ children }) => {
               {sessionStorage.getItem("page_name")}
             </Typography>
 
-            <Box display='flex' alignItems='center' gap={2}>
+            <Box display="flex" alignItems="center" gap={2}>
               {/* <IconButton>
                 <SearchIcon sx={{ fontSize: 28, color: "#222" }} />
               </IconButton>
@@ -221,11 +231,30 @@ const Navbar = ({ children }) => {
                 />
               </IconButton> */}
 
-              <IconButton>
+              <IconButton onClick={handleOpen}>
                 <AccountCircleOutlinedIcon
                   sx={{ fontSize: 28, color: "#2e2e2e" }}
                 />
               </IconButton>
+              <Dialog open={open} onClose={handleClose}>
+                <Typography sx={{ p: 2 }}>Are You sure?</Typography>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                  <Button onClick={handleClose} variant="outlined">
+                    No
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => {
+                      sessionStorage.clear();
+                      navigate("/");
+                    }}
+                  >
+                    Yes
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </Box>
           </Toolbar>
         </AppBar>

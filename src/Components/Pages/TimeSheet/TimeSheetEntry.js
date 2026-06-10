@@ -300,7 +300,7 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
       {/* Hover hint */}
       {!entries.length && !isWeekend && (
         <Typography
-          className="add-hint"
+          className='add-hint'
           sx={{
             fontSize: "0.6rem",
             fontFamily: FONT,
@@ -412,7 +412,7 @@ export default function TimeSheetEntry() {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
             <IconButton
-              size="small"
+              size='small'
               onClick={() => setSelectionDate((d) => d.subtract(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
@@ -428,7 +428,7 @@ export default function TimeSheetEntry() {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 views={["year", "month"]}
-                format="YYYY-MM"
+                format='YYYY-MM'
                 value={selectionDate}
                 onChange={(d) => d && setSelectionDate(d)}
                 slotProps={{ textField: { size: "small" } }}
@@ -459,7 +459,7 @@ export default function TimeSheetEntry() {
             </LocalizationProvider>
 
             <IconButton
-              size="small"
+              size='small'
               onClick={() => setSelectionDate((d) => d.add(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
@@ -477,29 +477,23 @@ export default function TimeSheetEntry() {
         {/* ── Summary Cards ── */}
         <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
           <SummaryCard
-            icon={<CalendarMonthIcon />}
-            label="Working Days"
-            value={summary.present + summary.leaves}
-            color="#6366F1"
-          />
-          <SummaryCard
             icon={<EventBusyIcon />}
-            label="Present"
+            label='Present'
             value={summary.present}
-            color="#22C55E"
+            color='#22C55E'
           />
           <SummaryCard
             icon={<EventBusyIcon />}
-            label="Leaves"
+            label='Leaves'
             value={summary.leaves}
-            color="#F97316"
+            color='#F97316'
           />
           <SummaryCard
             icon={<AccessTimeIcon />}
-            label="Total Hours"
+            label='Total Hours'
             value={summary.totalHours}
-            color="#0EA5E9"
-            sub="hrs"
+            color='#0EA5E9'
+            sub='hrs'
           />
         </Box>
 
@@ -535,7 +529,7 @@ export default function TimeSheetEntry() {
                 {WEEK_DAYS.map((day, i) => (
                   <TableCell
                     key={day}
-                    align="center"
+                    align='center'
                     sx={{
                       fontFamily: FONT,
                       fontSize: "0.7rem",
@@ -627,7 +621,7 @@ export default function TimeSheetEntry() {
           >
             <Box sx={{ position: "absolute", top: 10, right: 10 }}>
               <IconButton
-                size="small"
+                size='small'
                 onClick={() => {
                   setOpen1(false);
                   fetchTimesheet();

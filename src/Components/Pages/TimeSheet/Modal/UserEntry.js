@@ -23,6 +23,8 @@ import {
   Divider,
   CircularProgress,
 } from "@mui/material";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
@@ -39,6 +41,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../../../Loading/Loading";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
 const statusOptions = ["Progress", "Completed"];
 
@@ -191,6 +194,7 @@ export default function TimesheetForm(props) {
   const [projectOption, setProjectOption] = useState([]);
   const [loading, setLoading] = useState(false);
   const [timesheetSuccess, setTimesheetSuccess] = useState("");
+  const [dateType, setDateType] = useState(0); // 0 = Single Date, 1 = Custom Date
 
   const navigate = useNavigate();
 
@@ -305,8 +309,8 @@ export default function TimesheetForm(props) {
   const handleLeaveOpen = () => {
     setSelectedLeaveType("");
     setLeaveReason("");
-    setLeaveFromDate(dayjs().format("YYYY-MM-DD"));
-    setLeaveToDate(dayjs().format("YYYY-MM-DD"));
+    setLeaveFromDate(dayjs(props.passData?.workDate).format("YYYY-MM-DD"));
+    setLeaveToDate(dayjs(props.passData?.workDate).format("YYYY-MM-DD"));
     setLeaveSubmitError(false);
     setLeaveSuccess(null);
     setLeaveModalOpen(true);
@@ -354,6 +358,7 @@ export default function TimesheetForm(props) {
             employee_id: 50,
             departmentId: 1002,
             workDate: props.passData.workDate,
+            timesheetId: rows[0]?.timesheetId, // First object's timesheetId
           },
         ]
       : rows.filter(
@@ -406,8 +411,8 @@ export default function TimesheetForm(props) {
       {
         requestType: "Leave",
         leave_type: selectedLeaveType,
-        startDate: leaveFromDate.format("YYYY-MM-DD"),
-        endDate: leaveToDate.format("YYYY-MM-DD"),
+        startDate: dayjs(leaveFromDate).format("YYYY-MM-DD"),
+        endDate: dayjs(leaveToDate).format("YYYY-MM-DD"),
         leaveReason: leaveReason,
         employee_id: 50,
         departmentId: 1002,
@@ -582,7 +587,7 @@ export default function TimesheetForm(props) {
             height: 300,
           }}
         >
-          <CircularProgress color="secondary" aria-label="Loading…" />
+          <CircularProgress color='secondary' aria-label='Loading…' />
         </Box>
       ) : (
         <Box
@@ -796,7 +801,7 @@ export default function TimesheetForm(props) {
                             getOptionLabel={(option) =>
                               `${option.clientName} - ${option.clientId}`
                             }
-                            size="small"
+                            size='small'
                             sx={inputSx}
                             slotProps={{
                               paper: {
@@ -809,8 +814,8 @@ export default function TimesheetForm(props) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                placeholder="Select client"
-                                size="small"
+                                placeholder='Select client'
+                                size='small'
                               />
                             )}
                           />
@@ -838,7 +843,7 @@ export default function TimesheetForm(props) {
                             getOptionLabel={(option) =>
                               `${option.projectName} - ${option.projectId}`
                             }
-                            size="small"
+                            size='small'
                             sx={inputSx}
                             slotProps={{
                               paper: {
@@ -851,8 +856,8 @@ export default function TimesheetForm(props) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                placeholder="Select Projects"
-                                size="small"
+                                placeholder='Select Projects'
+                                size='small'
                               />
                             )}
                           />
@@ -868,8 +873,8 @@ export default function TimesheetForm(props) {
                           <TextField
                             fullWidth
                             multiline
-                            size="small"
-                            placeholder="What did you work on?"
+                            size='small'
+                            placeholder='What did you work on?'
                             value={row.workDescription}
                             onChange={(e) =>
                               handleChange(
@@ -891,9 +896,9 @@ export default function TimesheetForm(props) {
                         >
                           <TextField
                             fullWidth
-                            size="small"
-                            type="number"
-                            placeholder="0.0"
+                            size='small'
+                            type='number'
+                            placeholder='0.0'
                             value={row.hoursWorked}
                             inputProps={{ min: 0, max: 24, step: 0.5 }}
                             onChange={(e) =>
@@ -931,7 +936,7 @@ export default function TimesheetForm(props) {
                             onChange={(_, v) =>
                               handleChange(index, "status", v)
                             }
-                            size="small"
+                            size='small'
                             sx={inputSx}
                             renderOption={(props, option) => (
                               <li {...props}>
@@ -964,8 +969,8 @@ export default function TimesheetForm(props) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                placeholder="Select status"
-                                size="small"
+                                placeholder='Select status'
+                                size='small'
                                 InputProps={{
                                   ...params.InputProps,
                                   startAdornment: row.status ? (
@@ -1013,7 +1018,7 @@ export default function TimesheetForm(props) {
                             fullWidth
                             multiline
                             maxRows={3}
-                            size="small"
+                            size='small'
                             placeholder={
                               isReasonRequired(row)
                                 ? "Required — explain progress…"
@@ -1041,7 +1046,7 @@ export default function TimesheetForm(props) {
                           }}
                         >
                           <IconButton
-                            size="small"
+                            size='small'
                             onClick={handleAddRow}
                             sx={{
                               width: 30,
@@ -1070,7 +1075,7 @@ export default function TimesheetForm(props) {
                           }}
                         >
                           <IconButton
-                            size="small"
+                            size='small'
                             onClick={() => handleDeleteRow(index)}
                             disabled={rows.length === 1}
                             sx={{
@@ -1159,9 +1164,9 @@ export default function TimesheetForm(props) {
                                 Hours
                               </Typography>
                               <TextField
-                                size="small"
-                                type="number"
-                                placeholder="0.0"
+                                size='small'
+                                type='number'
+                                placeholder='0.0'
                                 value={permissionHours}
                                 inputProps={{ min: 0, max: 24, step: 0.5 }}
                                 onChange={(e) => {
@@ -1200,8 +1205,8 @@ export default function TimesheetForm(props) {
                               </Typography>
                               <TextField
                                 fullWidth
-                                size="small"
-                                placeholder="Enter reason for permission…"
+                                size='small'
+                                placeholder='Enter reason for permission…'
                                 value={permissionReason}
                                 onChange={(e) => {
                                   setPermissionReason(e.target.value);
@@ -1309,8 +1314,8 @@ export default function TimesheetForm(props) {
                   }}
                 >
                   <Button
-                    variant="outlined"
-                    size="small"
+                    variant='outlined'
+                    size='small'
                     onClick={() => {
                       setSubmitted(false);
                       setShowPermission(false);
@@ -1362,8 +1367,8 @@ export default function TimesheetForm(props) {
                     )}
 
                     <Button
-                      variant="contained"
-                      size="small"
+                      variant='contained'
+                      size='small'
                       disableElevation
                       onClick={handleSubmit}
                       disabled={!isSubmitEnabled}
@@ -1388,10 +1393,16 @@ export default function TimesheetForm(props) {
 
                     {/* Apply Leave button */}
                     <Button
-                      variant="contained"
-                      size="small"
+                      variant='contained'
+                      size='small'
                       disableElevation
                       onClick={handleLeaveOpen}
+                      disabled={rows.some(
+                        (item) =>
+                          item.timesheetId !== null &&
+                          item.timesheetId !== undefined &&
+                          item.timesheetId !== "",
+                      )}
                       sx={{
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: "13px",
@@ -1408,8 +1419,8 @@ export default function TimesheetForm(props) {
                     </Button>
 
                     <Button
-                      variant="contained"
-                      size="small"
+                      variant='contained'
+                      size='small'
                       disableElevation
                       onClick={togglePermission}
                       startIcon={
@@ -1444,7 +1455,7 @@ export default function TimesheetForm(props) {
           <Dialog
             open={leaveModalOpen}
             onClose={handleLeaveClose}
-            maxWidth="sm"
+            maxWidth='sm'
             fullWidth
             PaperProps={{
               elevation: 0,
@@ -1490,7 +1501,7 @@ export default function TimesheetForm(props) {
                 </Typography>
               </Box>
               <IconButton
-                size="small"
+                size='small'
                 onClick={handleLeaveClose}
                 sx={{
                   color: "#9ca3af",
@@ -1523,10 +1534,14 @@ export default function TimesheetForm(props) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "24px",
                     }}
                   >
-                    ✅
+                    <CheckCircleRoundedIcon
+                      sx={{
+                        fontSize: 28,
+                        color: "#22c55e",
+                      }}
+                    />
                   </Box>
                   <Typography
                     sx={{
@@ -1627,7 +1642,7 @@ export default function TimesheetForm(props) {
                             >
                               {leave.label}
                               <Box
-                                component="span"
+                                component='span'
                                 sx={{
                                   ml: 1,
                                   px: 0.8,
@@ -1704,115 +1719,203 @@ export default function TimesheetForm(props) {
                   <Divider sx={{ mb: 2.5, borderColor: "#f0f1f3" }} />
 
                   {/* Date Range */}
-                  <Box sx={{ display: "flex", gap: 2, mb: 2.5 }}>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography
-                        sx={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          color: "#6b7280",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.07em",
-                          mb: 1,
-                        }}
-                      >
-                        From Date
-                      </Typography>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={leaveFromDate ? dayjs(leaveFromDate) : null}
-                          format="DD-MM-YYYY"
-                          minDate={dayjs()}
-                          onChange={(newValue) => setLeaveFromDate(newValue)}
-                          slotProps={{
-                            popper: {
-                              disablePortal: true,
-                            },
-                            textField: {
-                              fullWidth: true,
-                              size: "small",
-                              sx: {
-                                "& .MuiInputBase-input": {
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                  fontFamily: "Poppins",
-                                  padding: "10px 14px",
-                                },
-                                "& .MuiOutlinedInput-root": {
-                                  borderRadius: "8px",
-                                  backgroundColor: "#fff",
-                                  "& fieldset": {
-                                    borderColor: "#D1D5DB",
-                                  },
-                                  "&:hover fieldset": {
-                                    borderColor: "#6366F1",
-                                  },
-                                  "&.Mui-focused fieldset": {
-                                    borderColor: "#6366F1",
-                                    borderWidth: "1.5px",
-                                  },
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography
-                        sx={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          color: "#6b7280",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.07em",
-                          mb: 1,
-                        }}
-                      >
-                        To Date
-                      </Typography>
 
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={leaveToDate ? dayjs(leaveToDate) : null}
-                          format="DD-MM-YYYY"
-                          onChange={(newValue) => setLeaveToDate(newValue)}
-                          slotProps={{
-                            popper: {
-                              disablePortal: true,
-                            },
-                            textField: {
-                              fullWidth: true,
-                              size: "small",
-                              sx: {
-                                "& .MuiInputBase-input": {
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                  fontFamily: "Poppins",
-                                  padding: "10px 14px",
-                                },
-                                "& .MuiOutlinedInput-root": {
-                                  borderRadius: "8px",
-                                  backgroundColor: "#fff",
-                                  "& fieldset": {
-                                    borderColor: "#D1D5DB",
-                                  },
-                                  "&:hover fieldset": {
-                                    borderColor: "#6366F1",
-                                  },
-                                  "&.Mui-focused fieldset": {
-                                    borderColor: "#6366F1",
-                                    borderWidth: "1.5px",
-                                  },
-                                },
-                              },
-                            },
+                  <Box sx={{ mb: 2.5 }}>
+                    <Tabs
+                      value={dateType}
+                      onChange={(e, newValue) => {
+                        setDateType(newValue);
+
+                        // Single Date select pannumbodhu
+                        if (newValue === 0) {
+                          setLeaveToDate(leaveFromDate);
+                          setLeaveFromDate(
+                            dayjs(props.passData?.workDate).format(
+                              "YYYY-MM-DD",
+                            ),
+                          );
+                          setLeaveToDate(
+                            dayjs(props.passData?.workDate).format(
+                              "YYYY-MM-DD",
+                            ),
+                          );
+                        }
+                      }}
+                      sx={{
+                        minHeight: 36,
+                        mb: 2,
+                        "& .MuiTabs-indicator": {
+                          backgroundColor: "#6366F1",
+                          height: 3,
+                          borderRadius: "3px",
+                        },
+                        "& .MuiTab-root": {
+                          textTransform: "none",
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "14px",
+                          fontWeight: 600,
+                          minHeight: 36,
+                          color: "#6b7280",
+                        },
+                        "& .Mui-selected": {
+                          color: "#6366F1 !important",
+                        },
+                      }}
+                    >
+                      <Tab label='Leave Date' />
+                      <Tab label='Select Custom Leave Date' disabled />
+                    </Tabs>
+
+                    {dateType === 0 ? (
+                      <Box>
+                        {/* <Typography
+                          sx={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            color: "#6b7280",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.07em",
+                            mb: 1,
                           }}
-                        />
-                      </LocalizationProvider>
-                    </Box>
+                        >
+                          Leave Date
+                        </Typography> */}
+
+                        <Typography
+                          sx={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: "15px",
+                            fontWeight: 700,
+                            color: "#111827",
+                          }}
+                        >
+                          {dayjs(props.passData?.workDate).format(
+                            "DD MMM YYYY",
+                          )}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Box sx={{ display: "flex", gap: 2 }}>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontFamily: "'DM Sans', sans-serif",
+                              fontSize: "11px",
+                              fontWeight: 600,
+                              color: "#6b7280",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.07em",
+                              mb: 1,
+                            }}
+                          >
+                            From Date
+                          </Typography>
+
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              value={
+                                leaveFromDate ? dayjs(leaveFromDate) : null
+                              }
+                              format='DD-MM-YYYY'
+                              minDate={dayjs()}
+                              onChange={(newValue) =>
+                                setLeaveFromDate(newValue)
+                              }
+                              slotProps={{
+                                popper: {
+                                  disablePortal: true,
+                                },
+                                textField: {
+                                  fullWidth: true,
+                                  size: "small",
+                                  sx: {
+                                    "& .MuiInputBase-input": {
+                                      fontSize: "14px",
+                                      fontWeight: 500,
+                                      fontFamily: "Poppins",
+                                      padding: "10px 14px",
+                                    },
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: "8px",
+                                      backgroundColor: "#fff",
+                                      "& fieldset": {
+                                        borderColor: "#D1D5DB",
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: "#6366F1",
+                                      },
+                                      "&.Mui-focused fieldset": {
+                                        borderColor: "#6366F1",
+                                        borderWidth: "1.5px",
+                                      },
+                                    },
+                                  },
+                                },
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </Box>
+
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontFamily: "'DM Sans', sans-serif",
+                              fontSize: "11px",
+                              fontWeight: 600,
+                              color: "#6b7280",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.07em",
+                              mb: 1,
+                            }}
+                          >
+                            To Date
+                          </Typography>
+
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              value={leaveToDate ? dayjs(leaveToDate) : null}
+                              format='DD-MM-YYYY'
+                              minDate={
+                                leaveFromDate ? dayjs(leaveFromDate) : dayjs()
+                              }
+                              onChange={(newValue) => setLeaveToDate(newValue)}
+                              slotProps={{
+                                popper: {
+                                  disablePortal: true,
+                                },
+                                textField: {
+                                  fullWidth: true,
+                                  size: "small",
+                                  sx: {
+                                    "& .MuiInputBase-input": {
+                                      fontSize: "14px",
+                                      fontWeight: 500,
+                                      fontFamily: "Poppins",
+                                      padding: "10px 14px",
+                                    },
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: "8px",
+                                      backgroundColor: "#fff",
+                                      "& fieldset": {
+                                        borderColor: "#D1D5DB",
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: "#6366F1",
+                                      },
+                                      "&.Mui-focused fieldset": {
+                                        borderColor: "#6366F1",
+                                        borderWidth: "1.5px",
+                                      },
+                                    },
+                                  },
+                                },
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </Box>
+                      </Box>
+                    )}
                   </Box>
 
                   {/* Reason */}
@@ -1834,8 +1937,8 @@ export default function TimesheetForm(props) {
                       fullWidth
                       multiline
                       rows={2}
-                      size="small"
-                      placeholder="Brief reason for your leave…"
+                      size='small'
+                      placeholder='Brief reason for your leave…'
                       value={leaveReason}
                       onChange={(e) => setLeaveReason(e.target.value)}
                       error={leaveSubmitError && !leaveReason.trim()}
@@ -1866,8 +1969,8 @@ export default function TimesheetForm(props) {
                 }}
               >
                 <Button
-                  variant="outlined"
-                  size="small"
+                  variant='outlined'
+                  size='small'
                   onClick={handleLeaveClose}
                   sx={{
                     fontFamily: "'DM Sans', sans-serif",
@@ -1888,8 +1991,8 @@ export default function TimesheetForm(props) {
                   Cancel
                 </Button>
                 <Button
-                  variant="contained"
-                  size="small"
+                  variant='contained'
+                  size='small'
                   disableElevation
                   onClick={handleLeaveSubmit}
                   sx={{
