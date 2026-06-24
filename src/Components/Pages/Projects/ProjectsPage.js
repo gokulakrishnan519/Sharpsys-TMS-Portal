@@ -180,7 +180,7 @@ function Success({ handleClose }) {
 
         <Typography
           sx={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "Poppins",
             fontSize: "15px",
             fontWeight: 600,
             color: "#16a34a",
@@ -191,7 +191,7 @@ function Success({ handleClose }) {
 
         <Typography
           sx={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "Poppins",
             fontSize: "13px",
             color: "#6b7280",
             textAlign: "center",
@@ -201,7 +201,7 @@ function Success({ handleClose }) {
         </Typography>
         <Button
           onClick={handleClose}
-          variant="contained"
+          variant='contained'
           sx={{
             mt: 2,
             minWidth: 100,
@@ -232,7 +232,7 @@ function ProjectsPage() {
   const navigate = useNavigate();
   const fetchTotalvalues = async () => {
     await axios
-      .get("http://10.10.0.47:7000/homekpis")
+      .get("http://10.10.0.108:8000/homekpis")
       .then((res) => {
         console.log(res.data);
         setValue(res.data);
@@ -276,7 +276,7 @@ function ProjectsPage() {
   const fetchProjectdetails = async () => {
     setLoading(true);
     await axios
-      .get("http://10.10.0.47:7000/project/projectdetails")
+      .get("http://10.10.0.108:8000/project/projectdetails")
       .then((res) => {
         console.log(res.data.projects);
         setPrjdetails(res.data.projects);
@@ -364,7 +364,7 @@ function ProjectsPage() {
                   p: 2,
                 }}
               >
-                <Grid container spacing={3} justifyContent="center">
+                <Grid container spacing={3} justifyContent='center'>
                   {stats.map((stat, index) => (
                     <Grid item xs={12} sm={6} md={3} key={stat.label}>
                       <Box sx={{ pt: "22px" }}>
@@ -475,7 +475,7 @@ function ProjectsPage() {
             <Dialog
               open={showSuccess}
               onClose={() => setShowSuccess(false)}
-              maxWidth="xs"
+              maxWidth='xs'
               fullWidth
             >
               {/* <Success onClose={() => setShowSuccess(false)} /> */}

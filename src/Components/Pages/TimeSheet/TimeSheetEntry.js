@@ -336,10 +336,10 @@ export default function TimeSheetEntry() {
   const fetchTimesheet = () => {
     setLoading(true);
     axios
-      .post("http://10.10.0.47:7000/timesheet/calendar", {
+      .post("http://10.10.0.108:8000/timesheet/calendar", {
         year: selectionDate.year(),
         month: selectionDate.format("MM"),
-        employeeId: 50,
+        employeeId: sessionStorage.getItem("employeeId"),
       })
       .then((res) => {
         setCalendarRows(buildCalendar(res.data));
@@ -611,7 +611,7 @@ export default function TimeSheetEntry() {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: "90%",
+              width: "99%",
               bgcolor: "#fff",
               borderRadius: "18px",
               overflow: "hidden",

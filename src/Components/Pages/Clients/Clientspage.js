@@ -192,7 +192,7 @@ function Success({ handleClose }) {
 
         <Typography
           sx={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "Poppins",
             fontSize: "15px",
             fontWeight: 600,
             color: "#16a34a",
@@ -203,7 +203,7 @@ function Success({ handleClose }) {
 
         <Typography
           sx={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "Poppins",
             fontSize: "13px",
             color: "#6b7280",
             textAlign: "center",
@@ -213,7 +213,7 @@ function Success({ handleClose }) {
         </Typography>
         <Button
           onClick={handleClose}
-          variant="contained"
+          variant='contained'
           sx={{
             mt: 2,
             minWidth: 100,
@@ -248,7 +248,7 @@ function Clientpage() {
   const navigate = useNavigate();
   const fetchTotalvalues = async () => {
     await axios
-      .get("http://10.10.0.47:7000/homekpis")
+      .get("http://10.10.0.108:8000/homekpis")
       .then((res) => {
         console.log(res.data);
         setValue(res.data);
@@ -266,7 +266,7 @@ function Clientpage() {
   const fetchClients = async () => {
     setLoading(true);
     await axios
-      .get("http://10.10.0.47:7000/clientlist")
+      .get("http://10.10.0.108:8000/clientlist")
       .then((res) => {
         console.log(res.data);
 
@@ -361,7 +361,7 @@ function Clientpage() {
                   p: 2,
                 }}
               >
-                <Grid container spacing={3} justifyContent="center">
+                <Grid container spacing={3} justifyContent='center'>
                   {stats.map((stat, index) => (
                     <Grid item xs={12} sm={6} md={3} key={stat.label}>
                       <Box sx={{ pt: "22px" }}>
@@ -438,7 +438,7 @@ function Clientpage() {
                   }}
                 >
                   <Table
-                    size="small"
+                    size='small'
                     sx={{
                       minWidth: { xs: 400, sm: 500, md: "100%" }, // adjust as needed
                       "& .MuiTableCell-root": {
@@ -466,7 +466,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align="center"
+                          align='center'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -476,7 +476,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align="center"
+                          align='center'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -486,7 +486,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align="center"
+                          align='center'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -496,7 +496,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align="center"
+                          align='center'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -506,7 +506,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align="center"
+                          align='center'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -523,19 +523,19 @@ function Clientpage() {
                         <TableRow key={item.ClientID}>
                           <TableCell>{item.CompanyName}</TableCell>
 
-                          <TableCell align="center">{item.Industry}</TableCell>
+                          <TableCell align='center'>{item.Industry}</TableCell>
 
-                          <TableCell align="center">{item.Email}</TableCell>
+                          <TableCell align='center'>{item.Email}</TableCell>
 
-                          <TableCell align="center">
+                          <TableCell align='center'>
                             {item.ContactPerson}
                           </TableCell>
 
-                          <TableCell align="center">
+                          <TableCell align='center'>
                             {item.PhoneNumber}
                           </TableCell>
 
-                          <TableCell align="center">{item.Location}</TableCell>
+                          <TableCell align='center'>{item.Location}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -552,7 +552,7 @@ function Clientpage() {
             <Dialog
               open={showSuccess}
               onClose={() => setShowSuccess(false)}
-              maxWidth="xs"
+              maxWidth='xs'
               fullWidth
             >
               {/* <Success onClose={() => setShowSuccess(false)} /> */}

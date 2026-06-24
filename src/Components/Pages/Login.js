@@ -126,7 +126,7 @@ export default function Login() {
     };
 
     await axios
-      .post("http://10.10.0.47:7000/login", payload)
+      .post("http://10.10.0.108:8000/login", payload)
       .then((res) => {
         console.log(res.data);
         // alert(res.data.message);

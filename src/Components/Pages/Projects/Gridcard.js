@@ -61,7 +61,7 @@ function Gridcard(props) {
         }}
       >
         <Typography
-          variant="h5"
+          variant='h5'
           sx={{
             color: "#000000",
             fontSize: "20px",
@@ -70,7 +70,7 @@ function Gridcard(props) {
         >
           {title}
         </Typography>
-        <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 3, alignItems: "center" }}>
           <Typography
             sx={{
               borderRadius: 5,
@@ -78,6 +78,7 @@ function Gridcard(props) {
               textAlign: "center",
               padding: "2px 6px",
               fontSize: "10px",
+              fontFamily: "Poppins, sans-serif",
               ...priorityd(priority),
             }}
           >

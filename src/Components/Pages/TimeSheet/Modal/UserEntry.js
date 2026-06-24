@@ -167,8 +167,8 @@ export default function TimesheetForm(props) {
       status: null,
       reason: "",
       requestType: "Timesheet",
-      employee_id: 50,
-      departmentId: 1002,
+      employee_id: sessionStorage.getItem("employeeId"),
+      departmentId: sessionStorage.getItem("departmentId"),
       workDate: props.passData.workDate,
     },
   ]);
@@ -192,6 +192,7 @@ export default function TimesheetForm(props) {
 
   const [clientOptions, setClientOptions] = useState([]);
   const [projectOption, setProjectOption] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [timesheetSuccess, setTimesheetSuccess] = useState("");
   const [dateType, setDateType] = useState(0); // 0 = Single Date, 1 = Custom Date
@@ -233,8 +234,8 @@ export default function TimesheetForm(props) {
         reason: "",
         requestType: "Timesheet",
 
-        employee_id: 50,
-        departmentId: 1002,
+        employee_id: sessionStorage.getItem("employeeId"),
+        departmentId: sessionStorage.getItem("departmentId"),
         workDate: props.passData.workDate,
       },
     ]);
@@ -329,8 +330,8 @@ export default function TimesheetForm(props) {
         status: null,
         reason: "",
         requestType: "Timesheet",
-        employee_id: 50,
-        departmentId: 1002,
+        employee_id: sessionStorage.getItem("employeeId"),
+        departmentId: sessionStorage.getItem("departmentId"),
         workDate: props.passData.workDate,
       },
     ]);
@@ -355,8 +356,8 @@ export default function TimesheetForm(props) {
             requestType: "Permission",
             permissionHours,
             permissionReason,
-            employee_id: 50,
-            departmentId: 1002,
+            employee_id: sessionStorage.getItem("employeeId"),
+            departmentId: sessionStorage.getItem("departmentId"),
             workDate: props.passData.workDate,
             timesheetId: rows[0]?.timesheetId, // First object's timesheetId
           },
@@ -369,7 +370,7 @@ export default function TimesheetForm(props) {
         );
 
     axios
-      .post(`http://10.10.0.47:7000/timesheet/create`, payload)
+      .post(`http://10.10.0.108:8000/timesheet/create`, payload)
       .then((res) => {
         console.log(res.data);
         setLoading(false);
@@ -414,14 +415,14 @@ export default function TimesheetForm(props) {
         startDate: dayjs(leaveFromDate).format("YYYY-MM-DD"),
         endDate: dayjs(leaveToDate).format("YYYY-MM-DD"),
         leaveReason: leaveReason,
-        employee_id: 50,
-        departmentId: 1002,
+        employee_id: sessionStorage.getItem("employeeId"),
+        departmentId: sessionStorage.getItem("departmentId"),
         workDate: props.passData.workDate,
       },
     ];
 
     axios
-      .post(`http://10.10.0.47:7000/timesheet/create`, payload)
+      .post(`http://10.10.0.108:8000/timesheet/create`, payload)
       .then((res) => {
         console.log(res.data);
         setLoading(false);
@@ -476,7 +477,7 @@ export default function TimesheetForm(props) {
   const clientMaster = async () => {
     try {
       const response = await axios.get(
-        "http://10.10.0.47:7000/dropdown/clientname",
+        "http://10.10.0.108:8000/dropdown/clientname",
       );
 
       const client = response.data.map((item) => ({
@@ -494,8 +495,24 @@ export default function TimesheetForm(props) {
   const projectMaster = async () => {
     try {
       const response = await axios.get(
-        "http://10.10.0.47:7000/project/projectdetails",
+        "http://10.10.0.108:8000/project/projectdetails",
       );
+
+      const projects = response.data.projects.map((item) => ({
+        projectId: item.ProjectID,
+        projectName: item.ProjectName,
+      }));
+
+      setProjectOption(projects);
+    } catch (error) {
+      console.error("Error fetching client names:", error);
+    }
+  };
+
+  // Get Project List
+  const userMaster = async () => {
+    try {
+      const response = await axios.get("http://10.10.0.108:8000/userlist");
 
       const projects = response.data.projects.map((item) => ({
         projectId: item.ProjectID,
@@ -743,7 +760,9 @@ export default function TimesheetForm(props) {
                       <TableCell sx={{ ...cellSx, width: "14%" }}>
                         Project
                       </TableCell>
+                      <TableCell sx={cellSx}>Task</TableCell>
                       <TableCell sx={cellSx}>Description</TableCell>
+
                       <TableCell sx={{ ...cellSx, width: "90px" }}>
                         Hours
                       </TableCell>
@@ -815,6 +834,48 @@ export default function TimesheetForm(props) {
                               <TextField
                                 {...params}
                                 placeholder='Select client'
+                                size='small'
+                              />
+                            )}
+                          />
+                        </TableCell>
+
+                        <TableCell
+                          sx={{
+                            px: 2,
+                            py: 1.2,
+                            borderBottom: "1px solid #f0f0f0",
+                          }}
+                        >
+                          <Autocomplete
+                            key={index}
+                            disableClearable
+                            options={projectOption}
+                            value={
+                              projectOption.find(
+                                (item) => item.projectId === row.projectId,
+                              ) || null
+                            }
+                            onChange={(_, value) =>
+                              handleChangeProjects(index, value)
+                            }
+                            getOptionLabel={(option) =>
+                              `${option.projectName} - ${option.projectId}`
+                            }
+                            size='small'
+                            sx={inputSx}
+                            slotProps={{
+                              paper: {
+                                sx: {
+                                  fontFamily: "Poppins, sans-serif",
+                                  fontSize: "12px",
+                                },
+                              },
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                placeholder='Select Projects'
                                 size='small'
                               />
                             )}

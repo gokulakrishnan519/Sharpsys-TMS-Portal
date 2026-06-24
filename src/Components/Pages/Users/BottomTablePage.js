@@ -72,7 +72,7 @@ function Success({ handleClose }) {
 
         <Typography
           sx={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "Poppins",
             fontSize: "15px",
             fontWeight: 600,
             color: "#16a34a",
@@ -83,7 +83,7 @@ function Success({ handleClose }) {
 
         <Typography
           sx={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "Poppins",
             fontSize: "13px",
             color: "#6b7280",
             textAlign: "center",
@@ -119,12 +119,13 @@ function Success({ handleClose }) {
   );
 }
 
-export default function UserManagementHeader() {
+export default function UserManagementHeader(props) {
   const [viewType, setViewType] = useState("user");
   const [open, setOpen] = React.useState(false);
   const [userList, setUserList] = useState(null);
   const { loading, setLoading } = React.useContext(UserContext);
   const [showSuccess, setShowSuccess] = useState(false);
+
   const navigate = useNavigate();
 
   const handleOpen = () => setOpen(true);
@@ -136,22 +137,24 @@ export default function UserManagementHeader() {
     }
   };
 
-  const userListpage = () => {
-    setLoading(true);
-    axios
-      .get("http://10.10.0.47:7000/userlist")
-      .then((res) => {
-        setUserList(res.data);
-        // setLoading(false);
-      })
-      .catch((err) => {
-        const errorMessage =
-          err.response?.data?.message || err.message || "Login failed";
+  const userListpage = async () => {
+    try {
+      const res = await axios.get("http://10.10.0.108:8000/userlist");
 
-        console.log(err);
-        // navigate("/ErrorHandling");
-        sessionStorage.setItem("errormessge", errorMessage);
-      });
+      setUserList(res.data);
+      props.handleLoadingFalse();
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message || err.message || "Something went wrong";
+
+      console.log(err);
+
+      sessionStorage.setItem("errormessge", errorMessage);
+      navigate("/ErrorHandling");
+      props.handleLoadingFalse();
+    } finally {
+      props.handleLoadingFalse();
+    }
   };
 
   // useEffect(() => {
@@ -352,6 +355,7 @@ export default function UserManagementHeader() {
               <UserCreationModal
                 onSuccess={() => setShowSuccess(true)}
                 handleClose={handleClose}
+                refreshClient={userListpage}
               />
             </Box>
           </Modal>

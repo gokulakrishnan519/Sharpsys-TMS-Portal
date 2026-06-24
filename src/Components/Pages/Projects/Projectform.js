@@ -45,6 +45,7 @@ export default function Projectform({
     start_date: "",
     end_date: "",
   });
+  const [employeeOption, setEmployeeOption] = useState([]);
 
   //edit
   useEffect(() => {
@@ -80,11 +81,11 @@ export default function Projectform({
       newErrors.description = "Description is required";
     }
 
-    if (!formdata.project_manager.trim()) {
-      newErrors.project_manager = "Project manager name is required";
+    if (!formdata.project_manager) {
+      newErrors.project_manager = "Project Manager is required";
     }
 
-    if (!formdata.assigned_to.trim()) {
+    if (!formdata.assigned_to) {
       newErrors.assigned_to = "Select the employee";
     }
     if (!formdata.priority.trim()) {
@@ -109,7 +110,7 @@ export default function Projectform({
 
   const fetchClientnames = async () => {
     await axios
-      .get("http://10.10.0.47:7000/dropdown/clientname")
+      .get("http://10.10.0.108:8000/dropdown/clientname")
       .then((res) => {
         console.log(res.data);
         setClients(res.data);
@@ -138,15 +139,17 @@ export default function Projectform({
         project_name: formdata.project_name,
         client_name: formdata.client,
         project_description: formdata.description,
-        project_lead: formdata.project_manager,
-        assigned_to: formdata.assigned_to,
+        project_lead: formdata.project_manager?.employeeName,
+        assigned_to: formdata.assigned_to?.employeeName,
         priority: formdata.priority,
         sla_configuration: formdata.sla_configuration,
         start_date: formdata.start_date,
         end_date: formdata.end_date,
       };
+
+      // console.log(payload);
       axios
-        .post("http://10.10.0.47:7000/project/newproject", payload)
+        .post("http://10.10.0.108:8000/project/newproject", payload)
         .then((res) => {
           console.log(res.data);
           refreshProjects();
@@ -224,6 +227,27 @@ export default function Projectform({
     },
   };
 
+  const employeeMaster = async () => {
+    try {
+      const response = await axios.get("http://10.10.0.108:8000/userlist");
+
+      const employeeList = response.data.flatMap((department) =>
+        department.data.map((employee) => ({
+          employeeId: employee.EmployeeId,
+          employeeName: employee.EmployeeName,
+        })),
+      );
+
+      setEmployeeOption(employeeList);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  };
+
+  useEffect(() => {
+    employeeMaster();
+  }, []);
+
   return (
     <React.Fragment>
       <Dialog
@@ -252,7 +276,7 @@ export default function Projectform({
         </DialogTitle>
         <DialogContent>
           <Grid
-            id="subscription-form"
+            id='subscription-form'
             sx={{
               border: "0.2px solid #d9d9d9",
               padding: 2,
@@ -281,13 +305,13 @@ export default function Projectform({
 
                 <TextField
                   fullWidth
-                  name="project_name"
+                  name='project_name'
                   value={formdata.project_name}
                   error={!!errors.project_name}
                   helperText={errors.project_name}
                   onChange={handleChange}
-                  size="small"
-                  placeholder="Enter Project Name"
+                  size='small'
+                  placeholder='Enter Project Name'
                   sx={textFieldStyle}
                 />
               </Box>
@@ -306,7 +330,7 @@ export default function Projectform({
 
                 <Autocomplete
                   options={clients}
-                  size="small"
+                  size='small'
                   getOptionLabel={(option) => option.CompanyName || ""}
                   value={
                     clients.find(
@@ -334,8 +358,8 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Select Client"
-                      name="client"
+                      placeholder='Select Client'
+                      name='client'
                       value={formdata.client}
                       error={!!errors.client}
                       helperText={errors.client}
@@ -357,15 +381,15 @@ export default function Projectform({
 
               <TextField
                 fullWidth
-                name="description"
+                name='description'
                 value={formdata.description}
                 error={!!errors.description}
                 helperText={errors.description}
                 onChange={handleChange}
                 // multiline
                 rows={1}
-                placeholder="Enter Description"
-                size="small"
+                placeholder='Enter Description'
+                size='small'
                 sx={textFieldStyle}
               />
             </Box>
@@ -388,16 +412,45 @@ export default function Projectform({
                 >
                   Project Manager
                 </Typography>
-                <TextField
-                  fullWidth
-                  name="project_manager"
+                <Autocomplete
+                  disableClearable
+                  size='small'
+                  options={employeeOption}
                   value={formdata.project_manager}
-                  error={!!errors.project_manager}
-                  helperText={errors.project_manager}
-                  onChange={handleChange}
-                  size="small"
-                  placeholder="Enter Manager Name"
+                  getOptionLabel={(option) => option?.employeeName || ""}
+                  isOptionEqualToValue={(option, value) =>
+                    option.employeeId === value.employeeId
+                  }
+                  onChange={(event, newValue) => {
+                    setFormdata((prev) => ({
+                      ...prev,
+                      project_manager: newValue,
+                    }));
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      project_manager: "",
+                    }));
+                  }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        "& .MuiAutocomplete-option": {
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "13px",
+                        },
+                      },
+                    },
+                  }}
                   sx={textFieldStyle}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder='Select Project Manager'
+                      error={!!errors.project_manager}
+                      helperText={errors.project_manager}
+                    />
+                  )}
                 />
 
                 {/* <Autocomplete
@@ -440,16 +493,45 @@ export default function Projectform({
                 >
                   Assigned To
                 </Typography>
-                <TextField
-                  fullWidth
-                  name="assigned_to"
+                <Autocomplete
+                  disableClearable
+                  size='small'
+                  options={employeeOption}
                   value={formdata.assigned_to}
-                  error={!!errors.assigned_to}
-                  helperText={errors.assigned_to}
-                  onChange={handleChange}
-                  size="small"
-                  placeholder="Enter Manager Name"
+                  getOptionLabel={(option) => option?.employeeName || ""}
+                  isOptionEqualToValue={(option, value) =>
+                    option.employeeId === value.employeeId
+                  }
+                  onChange={(event, newValue) => {
+                    setFormdata((prev) => ({
+                      ...prev,
+                      assigned_to: newValue,
+                    }));
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      assigned_to: "",
+                    }));
+                  }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        "& .MuiAutocomplete-option": {
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "13px",
+                        },
+                      },
+                    },
+                  }}
                   sx={textFieldStyle}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder='Select Assigned Employee'
+                      error={!!errors.assigned_to}
+                      helperText={errors.assigned_to}
+                    />
+                  )}
                 />
 
                 {/* <Autocomplete
@@ -496,7 +578,7 @@ export default function Projectform({
 
                 <Autocomplete
                   options={priorities}
-                  size="small"
+                  size='small'
                   onChange={(event, newValue) => {
                     setFormdata((prev) => ({
                       ...prev,
@@ -518,8 +600,8 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Select Priority"
-                      name="priority"
+                      placeholder='Select Priority'
+                      name='priority'
                       value={formdata.priority}
                       error={!!errors.priority}
                       helperText={errors.priority}
@@ -544,7 +626,7 @@ export default function Projectform({
 
                 <Autocomplete
                   options={slaOptions}
-                  size="small"
+                  size='small'
                   onChange={(event, newValue) => {
                     setFormdata((prev) => ({
                       ...prev,
@@ -566,8 +648,8 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Autofills According to Priority"
-                      name="sla_configuration"
+                      placeholder='Autofills According to Priority'
+                      name='sla_configuration'
                       value={formdata.sla_configuration}
                       error={!!errors.sla_configuration}
                       helperText={errors.sla_configuration}
@@ -717,11 +799,11 @@ export default function Projectform({
               </Box>
             </Box>
             <Button
-              type="submit"
+              type='submit'
               onClick={handleSubmit}
-              form="subscription-form"
+              form='subscription-form'
               // color="error"
-              variant="contained"
+              variant='contained'
               sx={{
                 width: "140px",
                 borderRadius: "4px",

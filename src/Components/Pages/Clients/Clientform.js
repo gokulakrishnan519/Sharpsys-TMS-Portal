@@ -110,7 +110,7 @@ export default function Clientform({
       };
 
       axios
-        .post("http://10.10.0.47:7000/client/creation", payload)
+        .post("http://10.10.0.108:8000/client/creation", payload)
         .then((res) => {
           console.log(res.data);
           refreshClient();
@@ -238,14 +238,14 @@ export default function Clientform({
                 </Typography>
 
                 <TextField
-                  name="company_name"
+                  name='company_name'
                   value={formData.company_name}
                   onChange={handleChange}
                   error={!!errors.company_name}
                   helperText={errors.company_name}
                   fullWidth
-                  size="small"
-                  placeholder="Enter Company Name"
+                  size='small'
+                  placeholder='Enter Company Name'
                   sx={textFieldStyle}
                 />
               </Box>
@@ -263,14 +263,14 @@ export default function Clientform({
                 </Typography>
 
                 <TextField
-                  name="industry"
+                  name='industry'
                   value={formData.industry}
                   onChange={handleChange}
                   error={!!errors.industry}
                   helperText={errors.industry}
                   fullWidth
-                  size="small"
-                  placeholder="Enter Industry"
+                  size='small'
+                  placeholder='Enter Industry'
                   sx={textFieldStyle}
                 />
               </Box>
@@ -288,14 +288,14 @@ export default function Clientform({
                 </Typography>
 
                 <TextField
-                  name="email"
+                  name='email'
                   value={formData.email}
                   onChange={handleChange}
                   error={!!errors.email}
                   helperText={errors.email}
                   fullWidth
-                  size="small"
-                  placeholder="Enter Email"
+                  size='small'
+                  placeholder='Enter Email'
                   sx={textFieldStyle}
                 />
               </Box>
@@ -313,14 +313,14 @@ export default function Clientform({
                 </Typography>
 
                 <TextField
-                  name="contact_person"
+                  name='contact_person'
                   value={formData.contact_person}
                   onChange={handleChange}
                   error={!!errors.contact_person}
                   helperText={errors.contact_person}
                   fullWidth
-                  size="small"
-                  placeholder="Enter Contact Person Name"
+                  size='small'
+                  placeholder='Enter Contact Person Name'
                   sx={textFieldStyle}
                 />
               </Box>
@@ -338,14 +338,14 @@ export default function Clientform({
                 </Typography>
 
                 <TextField
-                  name="phone_number"
+                  name='phone_number'
                   value={formData.phone_number}
                   onChange={handleChange}
                   error={!!errors.phone_number}
                   helperText={errors.phone_number}
                   fullWidth
-                  size="small"
-                  placeholder="Enter Phone Number"
+                  size='small'
+                  placeholder='Enter Phone Number'
                   sx={textFieldStyle}
                 />
               </Box>
@@ -363,14 +363,14 @@ export default function Clientform({
                 </Typography>
 
                 <TextField
-                  name="location"
+                  name='location'
                   value={formData.location}
                   onChange={handleChange}
                   error={!!errors.location}
                   helperText={errors.location}
                   fullWidth
-                  size="small"
-                  placeholder="Enter Location"
+                  size='small'
+                  placeholder='Enter Location'
                   sx={textFieldStyle}
                 />
               </Box>
@@ -389,15 +389,15 @@ export default function Clientform({
               </Typography>
 
               <TextField
-                name="address"
+                name='address'
                 value={formData.address}
                 onChange={handleChange}
                 error={!!errors.address}
                 helperText={errors.address}
                 fullWidth
                 multiline
-                placeholder="Enter Address"
-                size="small"
+                placeholder='Enter Address'
+                size='small'
                 sx={{
                   "& .MuiInputBase-root": {
                     fontFamily: "'Poppins', sans-serif",
@@ -440,8 +440,8 @@ export default function Clientform({
               }}
             >
               <Button
-                type="submit"
-                variant="contained"
+                type='submit'
+                variant='contained'
                 sx={{
                   color: "white",
                   background: "#ff2d55",
@@ -465,8 +465,8 @@ export default function Clientform({
               </Button>
 
               <Button
-                type="button"
-                variant="outlined"
+                type='button'
+                variant='outlined'
                 onClick={handleClose}
                 sx={{
                   color: "#ff2d55",

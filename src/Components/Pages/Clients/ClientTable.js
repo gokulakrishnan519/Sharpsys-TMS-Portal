@@ -21,7 +21,7 @@ export default function ClientTable() {
   const fetchClients = async () => {
     setLoading(true);
     await axios
-      .get("http://10.10.0.47:7000/clientlist")
+      .get("http://10.10.0.108:8000/clientlist")
       .then((res) => {
         console.log(res.data);
 
@@ -49,7 +49,7 @@ export default function ClientTable() {
       }}
     >
       <Table
-        size="small"
+        size='small'
         sx={{
           minWidth: { xs: 400, sm: 500, md: "100%" }, // adjust as needed
           "& .MuiTableCell-root": {
@@ -77,7 +77,7 @@ export default function ClientTable() {
             </TableCell>
 
             <TableCell
-              align="center"
+              align='center'
               sx={{
                 fontWeight: 600,
                 borderRight: "1px solid #e5e7eb",
@@ -87,7 +87,7 @@ export default function ClientTable() {
             </TableCell>
 
             <TableCell
-              align="center"
+              align='center'
               sx={{
                 fontWeight: 600,
                 borderRight: "1px solid #e5e7eb",
@@ -97,7 +97,7 @@ export default function ClientTable() {
             </TableCell>
 
             <TableCell
-              align="center"
+              align='center'
               sx={{
                 fontWeight: 600,
                 borderRight: "1px solid #e5e7eb",
@@ -107,7 +107,7 @@ export default function ClientTable() {
             </TableCell>
 
             <TableCell
-              align="center"
+              align='center'
               sx={{
                 fontWeight: 600,
                 borderRight: "1px solid #e5e7eb",
@@ -117,7 +117,7 @@ export default function ClientTable() {
             </TableCell>
 
             <TableCell
-              align="center"
+              align='center'
               sx={{
                 fontWeight: 600,
                 borderRight: "1px solid #e5e7eb",
@@ -134,15 +134,15 @@ export default function ClientTable() {
             <TableRow key={item.ClientID}>
               <TableCell>{item.CompanyName}</TableCell>
 
-              <TableCell align="center">{item.Industry}</TableCell>
+              <TableCell align='center'>{item.Industry}</TableCell>
 
-              <TableCell align="center">{item.Email}</TableCell>
+              <TableCell align='center'>{item.Email}</TableCell>
 
-              <TableCell align="center">{item.ContactPerson}</TableCell>
+              <TableCell align='center'>{item.ContactPerson}</TableCell>
 
-              <TableCell align="center">{item.PhoneNumber}</TableCell>
+              <TableCell align='center'>{item.PhoneNumber}</TableCell>
 
-              <TableCell align="center">{item.Location}</TableCell>
+              <TableCell align='center'>{item.Location}</TableCell>
             </TableRow>
           ))}
         </TableBody>

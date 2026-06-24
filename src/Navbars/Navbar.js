@@ -31,6 +31,8 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import main_logo from "../Images/Main_logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import AddTaskIcon from "@mui/icons-material/AddTask";
+
 const drawerWidth = 250;
 
 const menuItems = [
@@ -42,6 +44,7 @@ const menuItems = [
       { text: "Users", icon: <DashboardOutlinedIcon />, path: "users" },
       { text: "Clients", icon: <PersonIcon />, path: "Clientpage" },
       { text: "Project", icon: <CreateNewFolderIcon />, path: "ProjectsPage" },
+      { text: "Task", icon: <AddTaskIcon />, path: "TaskMainPage" },
     ],
   },
 

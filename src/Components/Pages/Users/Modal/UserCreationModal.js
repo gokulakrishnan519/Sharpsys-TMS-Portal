@@ -10,13 +10,17 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-export default function UserCreationModal({ onSuccess, handleClose }) {
+export default function UserCreationModal({
+  onSuccess,
+  handleClose,
+  refreshClient,
+}) {
   const [formData, setFormData] = useState({
     employerId: "",
     employerName: "",
     employerEmail: "",
-    department: null,
-    role: null,
+    department: sessionStorage.getItem("departmentId"),
+    role: sessionStorage.getItem("roleId"),
     responsibility: "",
     password: "",
   });
@@ -87,7 +91,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
       try {
         const response = await axios.post(
-          "http://10.10.0.47:7000/user/creation",
+          "http://10.10.0.108:8000/user/creation",
           payload,
           {
             headers: {
@@ -99,6 +103,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
         console.log("Success :", response.data);
         handleClose();
         onSuccess();
+        refreshClient();
         alert(response.data.message);
 
         // Reset Form
@@ -127,7 +132,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
   const EmployeeRolesgetApi = () => {
     axios
-      .get("http://10.10.0.47:7000/dropdown/rolename")
+      .get("http://10.10.0.108:8000/dropdown/rolename")
       .then((res) => {
         console.log(res);
         setEmployeeRolesList(res.data);
@@ -139,7 +144,7 @@ export default function UserCreationModal({ onSuccess, handleClose }) {
 
   const EmployeeDepartmentgetApi = () => {
     axios
-      .get("http://10.10.0.47:7000/dropdown/departmentname")
+      .get("http://10.10.0.108:8000/dropdown/departmentname")
       .then((res) => {
         console.log(res);
         setEmployeeDepartmentList(res.data);

@@ -135,11 +135,12 @@ function StatCard({ stat, value }) {
   );
 }
 
-export default function MainPage() {
+export default function TaskMainPage() {
   const { loading, setLoading } = useContext(UserContext);
   const [value, setValue] = useState({});
 
   const navigate = useNavigate();
+
   const fetchTotalvalues = async () => {
     setLoading(true);
     await axios
