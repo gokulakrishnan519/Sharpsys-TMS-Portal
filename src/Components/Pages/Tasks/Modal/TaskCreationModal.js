@@ -101,7 +101,7 @@ export default function TaskCreationModal({
       projectid: formData.project?.projectId,
       taskname: formData.task,
       taskdescription: "",
-      assignedto: formData.assignedBy?.employeeId,
+      assignedto: formData.assignedBy?.employeeName,
       assignedby: sessionStorage.getItem("employeeId"),
       priority: "High",
       status: "Open",
@@ -111,6 +111,7 @@ export default function TaskCreationModal({
       actualHours: 0,
       remarks: "",
     };
+    console.log("Assigned by", formData.assignedBy);
 
     axios
       .post(`http://10.10.0.108:8000/tasks/create`, payload)
@@ -199,7 +200,7 @@ export default function TaskCreationModal({
             width: "300px",
           }}
         >
-          <CircularProgress aria-label='Loading…' />
+          <CircularProgress aria-label="Loading…" />
         </Grid>
       ) : (
         <Grid>
@@ -212,6 +213,7 @@ export default function TaskCreationModal({
             }}
             onClick={() => {
               handleClose();
+              // refreshClient();
             }}
           >
             <CloseOutlinedIcon />
@@ -259,7 +261,7 @@ export default function TaskCreationModal({
                   Project
                 </Typography>
                 <Autocomplete
-                  size='small'
+                  size="small"
                   options={projectOption}
                   value={formData.project}
                   getOptionLabel={(option) => option?.projectName || ""}
@@ -301,7 +303,7 @@ export default function TaskCreationModal({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Select Project'
+                      placeholder="Select Project"
                       error={!!errors.project}
                       helperText={errors.project}
                     />
@@ -326,8 +328,8 @@ export default function TaskCreationModal({
                   fullWidth
                   multiline
                   rows={3}
-                  size='small'
-                  placeholder='Enter Task'
+                  size="small"
+                  placeholder="Enter Task"
                   value={formData.task}
                   onChange={(e) => {
                     setFormData({
@@ -471,8 +473,8 @@ export default function TaskCreationModal({
                 </Typography>
 
                 <Autocomplete
-                  multiple
-                  size='small'
+                  // multiple
+                  size="small"
                   options={employeeOption}
                   value={formData.assignedBy || []}
                   getOptionLabel={(option) => option.employeeName || ""}
@@ -513,7 +515,7 @@ export default function TaskCreationModal({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Select Employee(s)'
+                      placeholder="Select Employee(s)"
                       error={!!errors.assignedBy}
                       helperText={errors.assignedBy}
                     />
@@ -525,7 +527,7 @@ export default function TaskCreationModal({
               <Grid size={{ lg: 12, md: 12, sm: 12, xs: 12 }}>
                 <Button
                   onClick={handleSubmit}
-                  variant='contained'
+                  variant="contained"
                   sx={{
                     color: "#fff",
                     background: "#ff2d55",
@@ -552,7 +554,7 @@ export default function TaskCreationModal({
           <Dialog
             open={successModal}
             onClose={() => setSuccessModal(false)}
-            maxWidth='xs'
+            maxWidth="xs"
             fullWidth
             PaperProps={{
               sx: {
@@ -563,7 +565,7 @@ export default function TaskCreationModal({
           >
             <DialogContent sx={{ textAlign: "center", py: 4 }}>
               <Typography
-                variant='h6'
+                variant="h6"
                 sx={{
                   color: "success.main",
                   fontWeight: 600,
@@ -584,12 +586,16 @@ export default function TaskCreationModal({
               </Typography>
 
               <Button
-                variant='contained'
+                variant="contained"
                 sx={{
                   mt: 3,
                   fontFamily: "Poppins, sans-serif",
                 }}
-                onClick={() => setSuccessModal(false)}
+                onClick={() => {
+                  setSuccessModal(false);
+                  handleClose();
+                  refreshClient();
+                }}
               >
                 OK
               </Button>

@@ -11,6 +11,15 @@ import {
   IconButton,
   Paper,
   Avatar,
+  Button,
+  TextField,
+  DialogActions,
+  Tab,
+  DialogTitle,
+  Dialog,
+  Tabs,
+  Divider,
+  DialogContent,
 } from "@mui/material";
 import dayjs from "dayjs";
 import Navbar from "../../../Navbars/Navbar";
@@ -27,6 +36,10 @@ import UserEntry from "./Modal/UserEntry";
 import axios from "axios";
 import BeachAccessOutlinedIcon from "@mui/icons-material/BeachAccessOutlined";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
+import CloseIcon from "@mui/icons-material/Close";
+import MoneyOffOutlinedIcon from "@mui/icons-material/MoneyOffOutlined";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
 
 // ── constants ────────────────────────────────────────────────────────────────
 
@@ -39,6 +52,73 @@ const CHIP = {
   Leave: { bg: "#FCEBEB", color: "#791F1F", dot: "#A32D2D" },
   default: { bg: "#EEEDFE", color: "#3C3489", dot: "#534AB7" },
 };
+
+const inputSx = {
+  "& .MuiOutlinedInput-root": {
+    fontFamily: "Poppins, sans-serif",
+    fontSize: "13.5px",
+    borderRadius: "8px",
+    background: "#fff",
+    "& fieldset": { borderColor: "#e5e7eb", borderWidth: "1px" },
+    "&:hover fieldset": { borderColor: "#c0c4cc" },
+    "&.Mui-focused fieldset": { borderColor: "#3b82f6", borderWidth: "1.5px" },
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#b0b5bd",
+    opacity: 1,
+    fontFamily: "Poppins, sans-serif",
+  },
+};
+
+const errorInputSx = {
+  "& .MuiOutlinedInput-root": {
+    fontFamily: "Poppins, sans-serif",
+    fontSize: "13.5px",
+    borderRadius: "8px",
+    background: "#fff",
+    "& fieldset": { borderColor: "#fca5a5", borderWidth: "1px" },
+    "&:hover fieldset": { borderColor: "#ef4444" },
+    "&.Mui-focused fieldset": { borderColor: "#ef4444", borderWidth: "1.5px" },
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#fca5a5",
+    opacity: 1,
+    fontFamily: "Poppins, sans-serif",
+  },
+};
+
+const LEAVE_TYPES = [
+  {
+    value: "casual",
+    label: "Casual Leave",
+    shortLabel: "CL",
+    icon: <BeachAccessOutlinedIcon sx={{ fontSize: 18 }} />,
+    description: "Personal errands, family events, or short breaks",
+    color: "#f97316",
+    bg: "#fff7ed",
+    border: "#fed7aa",
+  },
+  {
+    value: "sick",
+    label: "Sick Leave",
+    shortLabel: "SL",
+    icon: <LocalHospitalOutlinedIcon sx={{ fontSize: 18 }} />,
+    description: "Medical appointments or health-related absence",
+    color: "#ef4444",
+    bg: "#fef2f2",
+    border: "#fecaca",
+  },
+  {
+    value: "lop",
+    label: "Loss of Pay",
+    shortLabel: "LOP",
+    icon: <MoneyOffOutlinedIcon sx={{ fontSize: 18 }} />,
+    description: "Unpaid leave when paid leave balance is exhausted",
+    color: "#6b7280",
+    bg: "#f9fafb",
+    border: "#e5e7eb",
+  },
+];
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -306,7 +386,7 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
       {/* Hover hint */}
       {!entries.length && !isWeekend && (
         <Typography
-          className='add-hint'
+          className="add-hint"
           sx={{
             fontSize: "0.6rem",
             fontFamily: FONT,
@@ -338,6 +418,19 @@ export default function TimeSheetEntry() {
   });
   const [loading, setLoading] = useState(false);
   const [passData, setPassData] = useState(null);
+
+  // Leave Modal State
+
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [selectedLeaveType, setSelectedLeaveType] = useState("");
+  const [leaveReason, setLeaveReason] = useState("");
+  const [leaveFromDate, setLeaveFromDate] = useState(
+    dayjs().format("YYYY-MM-DD"),
+  );
+  const [leaveToDate, setLeaveToDate] = useState(dayjs().format("YYYY-MM-DD"));
+
+  const [leaveSubmitError, setLeaveSubmitError] = useState(false);
+  const [leaveSuccess, setLeaveSuccess] = useState(null);
 
   const fetchTimesheet = () => {
     setLoading(true);
@@ -371,6 +464,72 @@ export default function TimeSheetEntry() {
     setPassData(cell);
     setOpen1(true);
   };
+
+  const handleLeaveOpen = () => {
+    setSelectedLeaveType("");
+    setLeaveReason("");
+    // setLeaveFromDate(dayjs(props.passData?.workDate).format("YYYY-MM-DD"));
+    // setLeaveToDate(dayjs(props.passData?.workDate).format("YYYY-MM-DD"));
+    setLeaveSubmitError(false);
+    setLeaveSuccess(null);
+    setLeaveModalOpen(true);
+    // setPermissionHours("");
+    // setPermissionReason("");
+    // setShowPermission(false);
+  };
+
+  const handleLeaveClose = () => {
+    setLeaveModalOpen(false);
+    fetchTimesheet();
+  };
+
+  const handleLeaveSubmit = () => {
+    if (!selectedLeaveType || !leaveReason.trim()) {
+      setLeaveSubmitError(true);
+      return;
+    }
+    const leaveLabel = LEAVE_TYPES.find(
+      (l) => l.value === selectedLeaveType,
+    )?.label;
+
+    setLoading(true);
+
+    const payload = [
+      {
+        requestType: "Leave",
+        leave_type: selectedLeaveType,
+        startDate: dayjs(leaveFromDate).format("YYYY-MM-DD"),
+        endDate: dayjs(leaveToDate).format("YYYY-MM-DD"),
+        leaveReason: leaveReason,
+        employee_id: sessionStorage.getItem("employeeId"),
+        departmentId: sessionStorage.getItem("departmentId"),
+        // workDate: props.passData.workDate,
+      },
+    ];
+
+    axios
+      .post(`http://10.10.0.108:8000/timesheet/create`, payload)
+      .then((res) => {
+        console.log(res.data);
+        setLoading(false);
+        setLeaveSuccess(
+          `${leaveLabel} applied from ${dayjs(leaveFromDate).format("DD MMM")} to ${dayjs(leaveToDate).format("DD MMM YYYY")}`,
+        );
+      })
+      .catch((err) => {
+        const errorMessage =
+          err.response?.data?.message || err.message || "Login failed";
+
+        console.log(err);
+        //navigate("/ErrorHandling");
+        sessionStorage.setItem("errormessge", errorMessage);
+        setLoading(false);
+      });
+  };
+
+  const selectedLeaveInfo = LEAVE_TYPES.find(
+    (l) => l.value === selectedLeaveType,
+  );
 
   return (
     <Navbar>
@@ -417,8 +576,33 @@ export default function TimeSheetEntry() {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+            <Button
+              variant="contained"
+              size="small"
+              disableElevation
+              onClick={handleLeaveOpen}
+              // disabled={rows.some(
+              //   (item) =>
+              //     item.timesheetId !== null &&
+              //     item.timesheetId !== undefined &&
+              //     item.timesheetId !== "",
+              // )}
+              sx={{
+                fontFamily: "Poppins, sans-serif",
+                fontSize: "13px",
+                fontWeight: 500,
+                textTransform: "none",
+                borderRadius: "8px",
+                px: 2.5,
+                py: 0.8,
+                background: "#f97316",
+                "&:hover": { background: "#ea580c" },
+              }}
+            >
+              Apply Leave
+            </Button>
             <IconButton
-              size='small'
+              size="small"
               onClick={() => setSelectionDate((d) => d.subtract(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
@@ -434,7 +618,7 @@ export default function TimeSheetEntry() {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 views={["year", "month"]}
-                format='YYYY-MM'
+                format="YYYY-MM"
                 value={selectionDate}
                 onChange={(d) => d && setSelectionDate(d)}
                 slotProps={{ textField: { size: "small" } }}
@@ -465,7 +649,7 @@ export default function TimeSheetEntry() {
             </LocalizationProvider>
 
             <IconButton
-              size='small'
+              size="small"
               onClick={() => setSelectionDate((d) => d.add(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
@@ -484,22 +668,22 @@ export default function TimeSheetEntry() {
         <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
           <SummaryCard
             icon={<BusinessCenterIcon />}
-            label='Present'
+            label="Present"
             value={summary.present}
-            color='#22C55E'
+            color="#22C55E"
           />
           <SummaryCard
             icon={<BeachAccessOutlinedIcon />}
-            label='Leaves'
+            label="Leaves"
             value={summary.leaves}
-            color='#F97316'
+            color="#F97316"
           />
           <SummaryCard
             icon={<AccessTimeIcon />}
-            label='Total Hours'
+            label="Total Hours"
             value={summary.totalHours}
-            color='#0EA5E9'
-            sub='hrs'
+            color="#0EA5E9"
+            sub="hrs"
           />
         </Box>
 
@@ -535,7 +719,7 @@ export default function TimeSheetEntry() {
                 {WEEK_DAYS.map((day, i) => (
                   <TableCell
                     key={day}
-                    align='center'
+                    align="center"
                     sx={{
                       fontFamily: FONT,
                       fontSize: "0.7rem",
@@ -627,7 +811,7 @@ export default function TimeSheetEntry() {
           >
             <Box sx={{ position: "absolute", top: 10, right: 10 }}>
               <IconButton
-                size='small'
+                size="small"
                 onClick={() => {
                   setOpen1(false);
                   fetchTimesheet();
@@ -655,6 +839,496 @@ export default function TimeSheetEntry() {
             </Box>
           </Box>
         </Modal>
+
+        {/* ── Apply Leave Modal ── */}
+        <Dialog
+          open={leaveModalOpen}
+          // onClose={handleLeaveClose}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              borderRadius: "16px",
+              border: "1px solid #e8eaed",
+              fontFamily: "Poppins, sans-serif",
+              overflow: "hidden",
+            },
+          }}
+        >
+          {/* Modal Header */}
+          <DialogTitle
+            sx={{
+              px: 3,
+              py: 2.5,
+              borderBottom: "1px solid #f0f1f3",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "17px",
+                  fontWeight: 600,
+                  color: "#111827",
+                }}
+              >
+                Apply Leave
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "12.5px",
+                  color: "#9ca3af",
+                  mt: 0.2,
+                }}
+              >
+                Select the type of leave you want to apply
+              </Typography>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={handleLeaveClose}
+              sx={{
+                color: "#9ca3af",
+                "&:hover": { background: "#f3f4f6", color: "#374151" },
+                borderRadius: "8px",
+              }}
+            >
+              <CloseIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent sx={{ px: 3, pt: 2.5, pb: 1 }}>
+            {leaveSuccess ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  py: 4,
+                  gap: 1.5,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: "50%",
+                    background: "#f0fdf4",
+                    border: "2px solid #bbf7d0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CheckCircleRoundedIcon
+                    sx={{
+                      fontSize: 28,
+                      color: "#22c55e",
+                    }}
+                  />
+                </Box>
+                <Typography
+                  sx={{
+                    fontFamily: "Poppins, sans-serif",
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    color: "#16a34a",
+                  }}
+                >
+                  Leave Applied Successfully!
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: "Poppins, sans-serif",
+                    fontSize: "13px",
+                    color: "#6b7280",
+                    textAlign: "center",
+                  }}
+                >
+                  {leaveSuccess}
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                {/* Leave Type Selection */}
+                <Typography
+                  sx={{
+                    fontFamily: "Poppins, sans-serif",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    color: "#6b7280",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.07em",
+                    mb: 1.5,
+                  }}
+                >
+                  Leave Type
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                    mb: 2.5,
+                  }}
+                >
+                  {LEAVE_TYPES.map((leave) => {
+                    const isSelected = selectedLeaveType === leave.value;
+                    return (
+                      <Box
+                        key={leave.value}
+                        onClick={() => setSelectedLeaveType(leave.value)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          px: 2,
+                          py: 1.5,
+                          borderRadius: "10px",
+                          border: `1.5px solid ${isSelected ? leave.color : "#e5e7eb"}`,
+                          background: isSelected ? leave.bg : "#fff",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                          "&:hover": {
+                            border: `1.5px solid ${leave.color}`,
+                            background: leave.bg,
+                          },
+                        }}
+                      >
+                        {/* Icon */}
+                        <Box
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: "9px",
+                            background: isSelected ? leave.border : "#f3f4f6",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: isSelected ? leave.color : "#9ca3af",
+                            transition: "all 0.15s",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {leave.icon}
+                        </Box>
+
+                        {/* Label + desc */}
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontFamily: "Poppins, sans-serif",
+                              fontSize: "13.5px",
+                              fontWeight: 600,
+                              color: isSelected ? leave.color : "#111827",
+                            }}
+                          >
+                            {leave.label}
+                            <Box
+                              component="span"
+                              sx={{
+                                ml: 1,
+                                px: 0.8,
+                                py: 0.15,
+                                borderRadius: "4px",
+                                fontSize: "10px",
+                                fontWeight: 700,
+                                background: isSelected
+                                  ? leave.color
+                                  : "#e5e7eb",
+                                color: isSelected ? "#fff" : "#6b7280",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              {leave.shortLabel}
+                            </Box>
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontFamily: "Poppins, sans-serif",
+                              fontSize: "12px",
+                              color: "#9ca3af",
+                              mt: 0.2,
+                            }}
+                          >
+                            {leave.description}
+                          </Typography>
+                        </Box>
+
+                        {/* Radio */}
+                        <Box
+                          sx={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            border: `2px solid ${isSelected ? leave.color : "#d1d5db"}`,
+                            background: isSelected ? leave.color : "#fff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          {isSelected && (
+                            <Box
+                              sx={{
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                background: "#fff",
+                              }}
+                            />
+                          )}
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
+
+                {leaveSubmitError && !selectedLeaveType && (
+                  <Typography
+                    sx={{
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      mb: 1.5,
+                    }}
+                  >
+                    Please select a leave type.
+                  </Typography>
+                )}
+
+                <Divider sx={{ mb: 2.5, borderColor: "#f0f1f3" }} />
+
+                {/* Date Range */}
+
+                <Box sx={{ mb: 2.5 }}>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: "#6b7280",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.07em",
+                          mb: 1,
+                        }}
+                      >
+                        From Date
+                      </Typography>
+
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          value={leaveFromDate ? dayjs(leaveFromDate) : null}
+                          format="DD-MM-YYYY"
+                          minDate={dayjs()}
+                          onChange={(newValue) => {
+                            setLeaveFromDate(newValue);
+                            setLeaveToDate(null);
+                          }}
+                          slotProps={{
+                            popper: {
+                              disablePortal: true,
+                            },
+                            textField: {
+                              fullWidth: true,
+                              size: "small",
+                              sx: {
+                                "& .MuiInputBase-input": {
+                                  fontSize: "14px",
+                                  fontWeight: 500,
+                                  fontFamily: "Poppins",
+                                  padding: "10px 14px",
+                                },
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: "8px",
+                                  backgroundColor: "#fff",
+                                  "& fieldset": {
+                                    borderColor: "#D1D5DB",
+                                  },
+                                  "&:hover fieldset": {
+                                    borderColor: "#6366F1",
+                                  },
+                                  "&.Mui-focused fieldset": {
+                                    borderColor: "#6366F1",
+                                    borderWidth: "1.5px",
+                                  },
+                                },
+                              },
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: "#6b7280",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.07em",
+                          mb: 1,
+                        }}
+                      >
+                        To Date
+                      </Typography>
+
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          value={leaveToDate ? dayjs(leaveToDate) : null}
+                          format="DD-MM-YYYY"
+                          minDate={
+                            leaveFromDate ? dayjs(leaveFromDate) : dayjs()
+                          }
+                          onChange={(newValue) => {
+                            setLeaveToDate(newValue);
+                          }}
+                          slotProps={{
+                            popper: {
+                              disablePortal: true,
+                            },
+                            textField: {
+                              fullWidth: true,
+                              size: "small",
+                              sx: {
+                                "& .MuiInputBase-input": {
+                                  fontSize: "14px",
+                                  fontWeight: 500,
+                                  fontFamily: "Poppins",
+                                  padding: "10px 14px",
+                                },
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: "8px",
+                                  backgroundColor: "#fff",
+                                  "& fieldset": {
+                                    borderColor: "#D1D5DB",
+                                  },
+                                  "&:hover fieldset": {
+                                    borderColor: "#6366F1",
+                                  },
+                                  "&.Mui-focused fieldset": {
+                                    borderColor: "#6366F1",
+                                    borderWidth: "1.5px",
+                                  },
+                                },
+                              },
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </Box>
+                  </Box>
+                </Box>
+
+                {/* Reason */}
+                <Box sx={{ mb: 1 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "#6b7280",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.07em",
+                      mb: 1,
+                    }}
+                  >
+                    Reason
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={2}
+                    size="small"
+                    placeholder="Brief reason for your leave…"
+                    value={leaveReason}
+                    onChange={(e) => setLeaveReason(e.target.value)}
+                    error={leaveSubmitError && !leaveReason.trim()}
+                    helperText={
+                      leaveSubmitError && !leaveReason.trim()
+                        ? "Please enter a reason."
+                        : ""
+                    }
+                    sx={
+                      leaveSubmitError && !leaveReason.trim()
+                        ? errorInputSx
+                        : inputSx
+                    }
+                  />
+                </Box>
+              </>
+            )}
+          </DialogContent>
+
+          {!leaveSuccess && (
+            <DialogActions
+              sx={{
+                px: 3,
+                py: 2,
+                borderTop: "1px solid #f0f1f3",
+                background: "#fafafa",
+                gap: 1,
+              }}
+            >
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleLeaveClose}
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  px: 2.2,
+                  py: 0.8,
+                  borderColor: "#e5e7eb",
+                  color: "#6b7280",
+                  "&:hover": {
+                    borderColor: "#c0c4cc",
+                    background: "#f5f6f8",
+                  },
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                disableElevation
+                onClick={handleLeaveSubmit}
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  px: 2.5,
+                  py: 0.8,
+                  background: selectedLeaveInfo?.color || "#f97316",
+                  "&:hover": {
+                    background: selectedLeaveInfo?.color || "#ea580c",
+                    filter: "brightness(0.92)",
+                  },
+                }}
+              >
+                Submit Leave
+              </Button>
+            </DialogActions>
+          )}
+        </Dialog>
       </Box>
     </Navbar>
   );

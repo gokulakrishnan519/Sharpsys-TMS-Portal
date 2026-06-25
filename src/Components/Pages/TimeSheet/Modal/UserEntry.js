@@ -470,11 +470,11 @@ export default function TimesheetForm(props) {
 
     updatedRows[index] = {
       ...updatedRows[index],
-      projectId: value?.projectId ?? "",
+      ProjectID: value?.ProjectID ?? "",
       projectName: value?.projectName ?? "",
     };
 
-    taskMaster(value?.projectId, index);
+    taskMaster(value?.ProjectID, index);
 
     setRows(updatedRows);
   };
@@ -512,16 +512,16 @@ export default function TimesheetForm(props) {
   // Get Project List
   const projectMaster = async () => {
     try {
-      const response = await axios.get(
-        "http://10.10.0.108:8000/project/projectdetails",
-      );
+      const response = await axios
+        .get("http://10.10.0.108:8000/dropdown/timesheetproject")
+        .then((res) => {
+          setProjectOption(res.data);
+        });
 
-      const projects = response.data.projects.map((item) => ({
-        projectId: item.ProjectID,
-        projectName: item.ProjectName,
-      }));
-
-      setProjectOption(projects);
+      // const projects = response.data.projects.map((item) => ({
+      //   projectId: item.ProjectID,
+      //   projectName: item.ProjectName,
+      // }));
     } catch (error) {
       console.error("Error fetching client names:", error);
     }
@@ -531,6 +531,7 @@ export default function TimesheetForm(props) {
   const taskMaster = async (id, index) => {
     const payload = {
       project_id: id,
+      employee_id: sessionStorage.getItem("employeeId"),
     };
 
     try {
@@ -637,7 +638,7 @@ export default function TimesheetForm(props) {
             height: 300,
           }}
         >
-          <CircularProgress color='secondary' aria-label='Loading…' />
+          <CircularProgress color="secondary" aria-label="Loading…" />
         </Box>
       ) : (
         <Box
@@ -853,7 +854,7 @@ export default function TimesheetForm(props) {
                             getOptionLabel={(option) =>
                               `${option.clientName} - ${option.clientId}`
                             }
-                            size='small'
+                            size="small"
                             sx={inputSx}
                             slotProps={{
                               paper: {
@@ -866,8 +867,8 @@ export default function TimesheetForm(props) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                placeholder='Select client'
-                                size='small'
+                                placeholder="Select client"
+                                size="small"
                               />
                             )}
                           />
@@ -881,21 +882,20 @@ export default function TimesheetForm(props) {
                           }}
                         >
                           <Autocomplete
-                            key={index}
                             disableClearable
                             options={projectOption}
+                            getOptionLabel={(option) =>
+                              `${option.ProjectName} - ${option.ProjectID}`
+                            }
                             value={
                               projectOption.find(
-                                (item) => item.projectId === row.projectId,
+                                (item) => item.ProjectID === row.ProjectID,
                               ) || null
                             }
                             onChange={(_, value) =>
                               handleChangeProjects(index, value)
                             }
-                            getOptionLabel={(option) =>
-                              `${option.projectName} - ${option.projectId}`
-                            }
-                            size='small'
+                            size="small"
                             sx={inputSx}
                             slotProps={{
                               paper: {
@@ -908,8 +908,8 @@ export default function TimesheetForm(props) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                placeholder='Select Projects'
-                                size='small'
+                                placeholder="Select Projects"
+                                size="small"
                               />
                             )}
                           />
@@ -971,7 +971,7 @@ export default function TimesheetForm(props) {
                               handleChangeTask(index, value)
                             }
                             getOptionLabel={(option) => `${option.taskname}`}
-                            size='small'
+                            size="small"
                             sx={inputSx}
                             slotProps={{
                               paper: {
@@ -984,8 +984,8 @@ export default function TimesheetForm(props) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                placeholder='Select Projects'
-                                size='small'
+                                placeholder="Select Projects"
+                                size="small"
                               />
                             )}
                           />
@@ -1001,8 +1001,8 @@ export default function TimesheetForm(props) {
                           <TextField
                             fullWidth
                             multiline
-                            size='small'
-                            placeholder='What did you work on?'
+                            size="small"
+                            placeholder="What did you work on?"
                             value={row.workDescription}
                             onChange={(e) =>
                               handleChange(
@@ -1024,9 +1024,9 @@ export default function TimesheetForm(props) {
                         >
                           <TextField
                             fullWidth
-                            size='small'
-                            type='number'
-                            placeholder='0.0'
+                            size="small"
+                            type="number"
+                            placeholder="0.0"
                             value={row.hoursWorked}
                             inputProps={{ min: 0, max: 24, step: 0.5 }}
                             onChange={(e) =>
@@ -1064,7 +1064,7 @@ export default function TimesheetForm(props) {
                             onChange={(_, v) =>
                               handleChange(index, "status", v)
                             }
-                            size='small'
+                            size="small"
                             sx={inputSx}
                             renderOption={(props, option) => (
                               <li {...props}>
@@ -1097,8 +1097,8 @@ export default function TimesheetForm(props) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                placeholder='Select status'
-                                size='small'
+                                placeholder="Select status"
+                                size="small"
                                 InputProps={{
                                   ...params.InputProps,
                                   startAdornment: row.status ? (
@@ -1146,7 +1146,7 @@ export default function TimesheetForm(props) {
                             fullWidth
                             multiline
                             maxRows={3}
-                            size='small'
+                            size="small"
                             placeholder={
                               isReasonRequired(row)
                                 ? "Required — explain progress…"
@@ -1174,7 +1174,7 @@ export default function TimesheetForm(props) {
                           }}
                         >
                           <IconButton
-                            size='small'
+                            size="small"
                             onClick={handleAddRow}
                             sx={{
                               width: 30,
@@ -1203,7 +1203,7 @@ export default function TimesheetForm(props) {
                           }}
                         >
                           <IconButton
-                            size='small'
+                            size="small"
                             onClick={() => handleDeleteRow(index)}
                             disabled={rows.length === 1}
                             sx={{
@@ -1292,9 +1292,9 @@ export default function TimesheetForm(props) {
                                 Hours
                               </Typography>
                               <TextField
-                                size='small'
-                                type='number'
-                                placeholder='0.0'
+                                size="small"
+                                type="number"
+                                placeholder="0.0"
                                 value={permissionHours}
                                 inputProps={{ min: 0, max: 24, step: 0.5 }}
                                 onChange={(e) => {
@@ -1333,8 +1333,8 @@ export default function TimesheetForm(props) {
                               </Typography>
                               <TextField
                                 fullWidth
-                                size='small'
-                                placeholder='Enter reason for permission…'
+                                size="small"
+                                placeholder="Enter reason for permission…"
                                 value={permissionReason}
                                 onChange={(e) => {
                                   setPermissionReason(e.target.value);
@@ -1442,8 +1442,8 @@ export default function TimesheetForm(props) {
                   }}
                 >
                   <Button
-                    variant='outlined'
-                    size='small'
+                    variant="outlined"
+                    size="small"
                     onClick={() => {
                       setSubmitted(false);
                       setShowPermission(false);
@@ -1496,8 +1496,8 @@ export default function TimesheetForm(props) {
                     )}
 
                     <Button
-                      variant='contained'
-                      size='small'
+                      variant="contained"
+                      size="small"
                       disableElevation
                       onClick={handleSubmit}
                       disabled={!isSubmitEnabled}
@@ -1522,8 +1522,8 @@ export default function TimesheetForm(props) {
 
                     {/* Apply Leave button */}
                     <Button
-                      variant='contained'
-                      size='small'
+                      variant="contained"
+                      size="small"
                       disableElevation
                       onClick={handleLeaveOpen}
                       disabled={rows.some(
@@ -1548,8 +1548,8 @@ export default function TimesheetForm(props) {
                     </Button>
 
                     <Button
-                      variant='contained'
-                      size='small'
+                      variant="contained"
+                      size="small"
                       disableElevation
                       onClick={togglePermission}
                       startIcon={
@@ -1584,7 +1584,7 @@ export default function TimesheetForm(props) {
           <Dialog
             open={leaveModalOpen}
             onClose={handleLeaveClose}
-            maxWidth='sm'
+            maxWidth="sm"
             fullWidth
             PaperProps={{
               elevation: 0,
@@ -1630,7 +1630,7 @@ export default function TimesheetForm(props) {
                 </Typography>
               </Box>
               <IconButton
-                size='small'
+                size="small"
                 onClick={handleLeaveClose}
                 sx={{
                   color: "#9ca3af",
@@ -1771,7 +1771,7 @@ export default function TimesheetForm(props) {
                             >
                               {leave.label}
                               <Box
-                                component='span'
+                                component="span"
                                 sx={{
                                   ml: 1,
                                   px: 0.8,
@@ -1891,8 +1891,8 @@ export default function TimesheetForm(props) {
                         },
                       }}
                     >
-                      <Tab label='Leave Date' />
-                      <Tab label='Select Custom Leave Date' disabled />
+                      <Tab label="Leave Date" />
+                      <Tab label="Select Custom Leave Date" disabled />
                     </Tabs>
 
                     {dateType === 0 ? (
@@ -1946,7 +1946,7 @@ export default function TimesheetForm(props) {
                               value={
                                 leaveFromDate ? dayjs(leaveFromDate) : null
                               }
-                              format='DD-MM-YYYY'
+                              format="DD-MM-YYYY"
                               minDate={dayjs()}
                               onChange={(newValue) =>
                                 setLeaveFromDate(newValue)
@@ -2004,7 +2004,7 @@ export default function TimesheetForm(props) {
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                               value={leaveToDate ? dayjs(leaveToDate) : null}
-                              format='DD-MM-YYYY'
+                              format="DD-MM-YYYY"
                               minDate={
                                 leaveFromDate ? dayjs(leaveFromDate) : dayjs()
                               }
@@ -2066,8 +2066,8 @@ export default function TimesheetForm(props) {
                       fullWidth
                       multiline
                       rows={2}
-                      size='small'
-                      placeholder='Brief reason for your leave…'
+                      size="small"
+                      placeholder="Brief reason for your leave…"
                       value={leaveReason}
                       onChange={(e) => setLeaveReason(e.target.value)}
                       error={leaveSubmitError && !leaveReason.trim()}
@@ -2098,8 +2098,8 @@ export default function TimesheetForm(props) {
                 }}
               >
                 <Button
-                  variant='outlined'
-                  size='small'
+                  variant="outlined"
+                  size="small"
                   onClick={handleLeaveClose}
                   sx={{
                     fontFamily: "'DM Sans', sans-serif",
@@ -2120,8 +2120,8 @@ export default function TimesheetForm(props) {
                   Cancel
                 </Button>
                 <Button
-                  variant='contained'
-                  size='small'
+                  variant="contained"
+                  size="small"
                   disableElevation
                   onClick={handleLeaveSubmit}
                   sx={{
