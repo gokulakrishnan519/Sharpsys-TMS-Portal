@@ -162,6 +162,7 @@ export default function TimesheetForm(props) {
       clientName: null,
       projectId: "",
       projectName: null,
+      taskname: null,
       workDescription: "",
       hoursWorked: "",
       status: null,
@@ -192,6 +193,7 @@ export default function TimesheetForm(props) {
 
   const [clientOptions, setClientOptions] = useState([]);
   const [projectOption, setProjectOption] = useState([]);
+  const [taskMasterList, setTaskMasterList] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [timesheetSuccess, setTimesheetSuccess] = useState("");
@@ -205,6 +207,7 @@ export default function TimesheetForm(props) {
         row.clientId &&
         row.clientName &&
         row.projectId &&
+        row.taskname &&
         row.projectName &&
         row.workDescription?.trim() !== "" &&
         row.hoursWorked !== "" &&
@@ -228,6 +231,7 @@ export default function TimesheetForm(props) {
         clientName: null,
         projectId: "",
         projectName: "",
+        taskname: "",
         workDescription: "",
         hoursWorked: "",
         status: null,
@@ -470,6 +474,20 @@ export default function TimesheetForm(props) {
       projectName: value?.projectName ?? "",
     };
 
+    taskMaster(value?.projectId, index);
+
+    setRows(updatedRows);
+  };
+
+  const handleChangeTask = (index, value) => {
+    const updatedRows = [...rows];
+
+    updatedRows[index] = {
+      ...updatedRows[index],
+      task_id: value?.taskid ?? "",
+      taskname: value?.taskname ?? "",
+    };
+
     setRows(updatedRows);
   };
 
@@ -510,16 +528,29 @@ export default function TimesheetForm(props) {
   };
 
   // Get Project List
-  const userMaster = async () => {
+  const taskMaster = async (id, index) => {
+    const payload = {
+      project_id: id,
+    };
+
     try {
-      const response = await axios.get("http://10.10.0.108:8000/userlist");
+      const response = await axios.post(
+        "http://10.10.0.108:8000/dropdown/tasks",
+        payload,
+      );
 
-      const projects = response.data.projects.map((item) => ({
-        projectId: item.ProjectID,
-        projectName: item.ProjectName,
-      }));
+      // const projects = response.data.projects.map((item) => ({
+      //   projectId: item.ProjectID,
+      //   projectName: item.ProjectName,
+      // }));
 
-      setProjectOption(projects);
+      setTaskMasterList(response.data);
+
+      setRows((prevRows) =>
+        prevRows.map((row, i) =>
+          i === index ? { ...row, taskname: "" } : row,
+        ),
+      );
     } catch (error) {
       console.error("Error fetching client names:", error);
     }
@@ -536,6 +567,7 @@ export default function TimesheetForm(props) {
       row.clientName &&
       row.projectId &&
       row.projectName &&
+      row.taskname &&
       row.workDescription?.trim() !== "" &&
       row.hoursWorked !== "" &&
       row.hoursWorked !== null &&
@@ -559,6 +591,7 @@ export default function TimesheetForm(props) {
             clientName: item.clientName,
             projectId: item.projectId,
             projectName: item.project,
+            taskname: item.taskname,
             workDescription: item.workDescription,
             hoursWorked: item.hours,
             status: item.status,
@@ -889,21 +922,55 @@ export default function TimesheetForm(props) {
                             borderBottom: "1px solid #f0f0f0",
                           }}
                         >
+                          {/* <Autocomplete
+                            key={index}
+                            disableClearable
+                            options={taskMasterList}
+                            value={row.taskname || ""}
+                            onChange={(_, value) => {
+                              setRows((prev) =>
+                                prev.map((item, i) =>
+                                  i === index
+                                    ? {
+                                        ...item,
+                                        taskname: value,
+                                      }
+                                    : item,
+                                ),
+                              );
+                            }}
+                            size='small'
+                            sx={inputSx}
+                            slotProps={{
+                              paper: {
+                                sx: {
+                                  fontFamily: "Poppins, sans-serif",
+                                  fontSize: "12px",
+                                },
+                              },
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                placeholder='Select Task'
+                                size='small'
+                              />
+                            )}
+                          /> */}
+
                           <Autocomplete
                             key={index}
                             disableClearable
-                            options={projectOption}
+                            options={taskMasterList}
                             value={
-                              projectOption.find(
-                                (item) => item.projectId === row.projectId,
+                              taskMasterList.find(
+                                (item) => item.taskid === row.taskid,
                               ) || null
                             }
                             onChange={(_, value) =>
-                              handleChangeProjects(index, value)
+                              handleChangeTask(index, value)
                             }
-                            getOptionLabel={(option) =>
-                              `${option.projectName} - ${option.projectId}`
-                            }
+                            getOptionLabel={(option) => `${option.taskname}`}
                             size='small'
                             sx={inputSx}
                             slotProps={{
@@ -1388,6 +1455,7 @@ export default function TimesheetForm(props) {
                           clientName: null,
                           projectId: "",
                           projectName: null,
+                          taskname: null,
                           workDescription: "",
                           hoursWorked: "",
                           status: null,

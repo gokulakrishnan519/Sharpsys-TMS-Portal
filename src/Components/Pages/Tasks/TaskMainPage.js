@@ -148,6 +148,7 @@ export default function TaskMainPage() {
       .then((res) => {
         console.log(res.data);
         setValue(res.data);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
