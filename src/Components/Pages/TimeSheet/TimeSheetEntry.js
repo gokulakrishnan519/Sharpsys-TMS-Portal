@@ -25,6 +25,8 @@ import EventBusyIcon from "@mui/icons-material/EventBusy";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import UserEntry from "./Modal/UserEntry";
 import axios from "axios";
+import BeachAccessOutlinedIcon from "@mui/icons-material/BeachAccessOutlined";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 
 // ── constants ────────────────────────────────────────────────────────────────
 
@@ -170,9 +172,13 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
   const shown = entries.slice(0, 2);
   const extra = entries.length - 2;
 
+  console.log(cell?.workDate);
+
+  const isFutureDate = dayjs(cell?.workDate).isAfter(dayjs(), "day");
+
   return (
     <TableCell
-      onClick={onClick}
+      onClick={!isFutureDate ? onClick : undefined}
       sx={{
         height: 108,
         border: "1px solid #F1F5F9",
@@ -477,13 +483,13 @@ export default function TimeSheetEntry() {
         {/* ── Summary Cards ── */}
         <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
           <SummaryCard
-            icon={<EventBusyIcon />}
+            icon={<BusinessCenterIcon />}
             label='Present'
             value={summary.present}
             color='#22C55E'
           />
           <SummaryCard
-            icon={<EventBusyIcon />}
+            icon={<BeachAccessOutlinedIcon />}
             label='Leaves'
             value={summary.leaves}
             color='#F97316'
