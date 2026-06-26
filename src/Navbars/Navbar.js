@@ -29,6 +29,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 
 import main_logo from "../Images/Main_logo.png";
+import Tms_logo from "../Images/TMS Logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AddTaskIcon from "@mui/icons-material/AddTask";
@@ -84,7 +85,7 @@ const Navbar = ({ children }) => {
 
       {/* Sidebar */}
       <Drawer
-        variant='permanent'
+        variant="permanent"
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -107,9 +108,9 @@ const Navbar = ({ children }) => {
           }}
         >
           <Box
-            component='img'
-            src={main_logo}
-            alt='logo'
+            component="img"
+            src={Tms_logo}
+            alt="logo"
             sx={{
               width: 200,
               objectFit: "contain",
@@ -205,7 +206,7 @@ const Navbar = ({ children }) => {
         {/* Navbar */}
 
         <AppBar
-          position='fixed'
+          position="fixed"
           elevation={0}
           sx={{
             backgroundColor: "#ffffff",
@@ -223,7 +224,7 @@ const Navbar = ({ children }) => {
             }}
           >
             <Typography
-              variant='h5'
+              variant="h5"
               sx={{
                 fontWeight: 600,
                 fontFamily: "Poppins, sans-serif",
@@ -232,7 +233,7 @@ const Navbar = ({ children }) => {
               {sessionStorage.getItem("page_name")}
             </Typography>
 
-            <Box display='flex' alignItems='center' gap={2}>
+            <Box display="flex" alignItems="center" gap={2}>
               {/* <IconButton>
                 <SearchIcon sx={{ fontSize: 28, color: "#222" }} />
               </IconButton>
@@ -251,7 +252,7 @@ const Navbar = ({ children }) => {
               <Dialog
                 open={open}
                 onClose={handleClose}
-                maxWidth='xs'
+                maxWidth="xs"
                 fullWidth
                 PaperProps={{
                   sx: {
@@ -269,14 +270,14 @@ const Navbar = ({ children }) => {
                     fontFamily: "Poppins",
                   }}
                 >
-                  <LogoutOutlinedIcon color='error' />
+                  <LogoutOutlinedIcon color="error" />
                   Confirm Logout
                 </DialogTitle>
 
                 <DialogContent>
                   <Typography
-                    variant='body2'
-                    color='text.secondary'
+                    variant="body2"
+                    color="text.secondary"
                     sx={{ fontFamily: "Poppins" }}
                   >
                     Are you sure you want to log out?
@@ -286,7 +287,7 @@ const Navbar = ({ children }) => {
                 <DialogActions sx={{ px: 3, pb: 2 }}>
                   <Button
                     onClick={handleClose}
-                    variant='outlined'
+                    variant="outlined"
                     sx={{
                       textTransform: "none",
                       borderRadius: 2,
@@ -298,8 +299,8 @@ const Navbar = ({ children }) => {
                   </Button>
 
                   <Button
-                    variant='contained'
-                    color='error'
+                    variant="contained"
+                    color="error"
                     onClick={() => {
                       sessionStorage.clear();
                       navigate("/");
