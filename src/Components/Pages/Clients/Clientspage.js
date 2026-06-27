@@ -30,7 +30,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Clientform from "./Clientform";
-// import { useState } from "react";
+
 // import ClientTable from "./ClientTable";
 import Navbar from "../../../Navbars/Navbar";
 import PersonIcon from "@mui/icons-material/Person";
@@ -38,6 +38,7 @@ import PeopleAltOutlined from "@mui/icons-material/PeopleAltOutlined";
 import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
 import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
 import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
+import { TablePagination } from "@mui/material";
 
 // import { Box, Typography, Avatar, Button } from "@mui/material";
 
@@ -79,7 +80,7 @@ const stats = [
     Icon: BusinessOutlined,
   },
   {
-    label: "Total Projects",
+    label: "Active Projects",
     key: "totalProjects",
     // value: "-",
     iconBg: "#d8f5ea",
@@ -162,6 +163,7 @@ function StatCard({ stat, value }) {
     </Card>
   );
 }
+
 function Success({ handleClose }) {
   return (
     <>
@@ -246,6 +248,17 @@ function Clientpage() {
   const { loading, setLoading } = React.useContext(UserContext);
   const [value, setValue] = useState([]);
   const navigate = useNavigate();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const fetchTotalvalues = async () => {
     await axios
       .get("http://10.10.0.108:8000/homekpis")
@@ -447,6 +460,7 @@ function Clientpage() {
                           xs: "10px",
                           sm: "11px",
                           md: "12px",
+                          lg: "13px",
                         },
                         whiteSpace: "nowrap", // prevents content wrapping
                         py: { xs: 0.5, sm: 1 },
@@ -466,7 +480,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align='center'
+                          align='left'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -476,7 +490,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align='center'
+                          align='left'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -486,7 +500,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align='center'
+                          align='left'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -496,7 +510,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align='center'
+                          align='left'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -506,7 +520,7 @@ function Clientpage() {
                         </TableCell>
 
                         <TableCell
-                          align='center'
+                          align='left'
                           sx={{
                             fontWeight: 600,
                             borderRight: "1px solid #e5e7eb",
@@ -519,27 +533,51 @@ function Clientpage() {
 
                     {/* Body */}
                     <TableBody>
-                      {client.map((item) => (
-                        <TableRow key={item.ClientID}>
-                          <TableCell>{item.CompanyName}</TableCell>
+                      {client
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage,
+                        )
+                        .map((item) => (
+                          <TableRow key={item.ClientID}>
+                            <TableCell>{item.CompanyName}</TableCell>
 
-                          <TableCell align='center'>{item.Industry}</TableCell>
+                            <TableCell align='left'>{item.Industry}</TableCell>
 
-                          <TableCell align='center'>{item.Email}</TableCell>
+                            <TableCell align='left'>{item.Email}</TableCell>
 
-                          <TableCell align='center'>
-                            {item.ContactPerson}
-                          </TableCell>
+                            <TableCell align='left'>
+                              {item.ContactPerson}
+                            </TableCell>
 
-                          <TableCell align='center'>
-                            {item.PhoneNumber}
-                          </TableCell>
+                            <TableCell align='left'>
+                              {item.PhoneNumber}
+                            </TableCell>
 
-                          <TableCell align='center'>{item.Location}</TableCell>
-                        </TableRow>
-                      ))}
+                            <TableCell align='left'>{item.Location}</TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
+                  <TablePagination
+                    component='div'
+                    count={client.length}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                    sx={{
+                      borderTop: "1px solid #e5e7eb",
+                      "& .MuiTablePagination-toolbar": {
+                        fontFamily: "'Poppins', sans-serif",
+                      },
+                      "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+                        {
+                          fontFamily: "'Poppins', sans-serif",
+                        },
+                    }}
+                  />
                 </TableContainer>
               </Box>
             </div>

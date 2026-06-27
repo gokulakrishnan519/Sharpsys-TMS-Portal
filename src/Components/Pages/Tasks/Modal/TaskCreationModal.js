@@ -103,6 +103,7 @@ export default function TaskCreationModal({
       taskdescription: "",
       assignedto: formData.assignedBy?.employeeName,
       assignedby: sessionStorage.getItem("employeeId"),
+      employeeid: formData.assignedBy?.employeeId,
       priority: "High",
       status: "Open",
       startdate: dayjs(formData.startDate).format("YYYY-MM-DD"),
@@ -152,10 +153,10 @@ export default function TaskCreationModal({
   const projectMaster = async () => {
     try {
       const response = await axios.get(
-        "http://10.10.0.108:8000/project/projectdetails",
+        "http://10.10.0.108:8000/dropdown/timesheetproject",
       );
 
-      const projects = response.data.projects.map((item) => ({
+      const projects = response.data.map((item) => ({
         projectId: item.ProjectID,
         projectName: item.ProjectName,
       }));
@@ -200,7 +201,7 @@ export default function TaskCreationModal({
             width: "300px",
           }}
         >
-          <CircularProgress aria-label="Loading…" />
+          <CircularProgress aria-label='Loading…' />
         </Grid>
       ) : (
         <Grid>
@@ -261,7 +262,8 @@ export default function TaskCreationModal({
                   Project
                 </Typography>
                 <Autocomplete
-                  size="small"
+                  disableClearable
+                  size='small'
                   options={projectOption}
                   value={formData.project}
                   getOptionLabel={(option) => option?.projectName || ""}
@@ -303,7 +305,7 @@ export default function TaskCreationModal({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Select Project"
+                      placeholder='Select Project'
                       error={!!errors.project}
                       helperText={errors.project}
                     />
@@ -328,8 +330,8 @@ export default function TaskCreationModal({
                   fullWidth
                   multiline
                   rows={3}
-                  size="small"
-                  placeholder="Enter Task"
+                  size='small'
+                  placeholder='Enter Task'
                   value={formData.task}
                   onChange={(e) => {
                     setFormData({
@@ -373,6 +375,7 @@ export default function TaskCreationModal({
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     value={dayjs(formData.startDate)}
+                    minDate={dayjs()}
                     onChange={(newValue) => {
                       setFormData({
                         ...formData,
@@ -385,6 +388,10 @@ export default function TaskCreationModal({
                       });
                     }}
                     slotProps={{
+                      popper: {
+                        disablePortal: false,
+                        placement: "auto",
+                      },
                       textField: {
                         fullWidth: true,
                         size: "small",
@@ -436,6 +443,10 @@ export default function TaskCreationModal({
                     }}
                     minDate={formData.startDate || undefined}
                     slotProps={{
+                      popper: {
+                        disablePortal: false,
+                        placement: "auto",
+                      },
                       textField: {
                         fullWidth: true,
                         size: "small",
@@ -474,7 +485,7 @@ export default function TaskCreationModal({
 
                 <Autocomplete
                   // multiple
-                  size="small"
+                  size='small'
                   options={employeeOption}
                   value={formData.assignedBy || []}
                   getOptionLabel={(option) => option.employeeName || ""}
@@ -515,7 +526,7 @@ export default function TaskCreationModal({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Select Employee(s)"
+                      placeholder='Select Employee'
                       error={!!errors.assignedBy}
                       helperText={errors.assignedBy}
                     />
@@ -527,7 +538,7 @@ export default function TaskCreationModal({
               <Grid size={{ lg: 12, md: 12, sm: 12, xs: 12 }}>
                 <Button
                   onClick={handleSubmit}
-                  variant="contained"
+                  variant='contained'
                   sx={{
                     color: "#fff",
                     background: "#ff2d55",
@@ -554,7 +565,7 @@ export default function TaskCreationModal({
           <Dialog
             open={successModal}
             onClose={() => setSuccessModal(false)}
-            maxWidth="xs"
+            maxWidth='xs'
             fullWidth
             PaperProps={{
               sx: {
@@ -565,7 +576,7 @@ export default function TaskCreationModal({
           >
             <DialogContent sx={{ textAlign: "center", py: 4 }}>
               <Typography
-                variant="h6"
+                variant='h6'
                 sx={{
                   color: "success.main",
                   fontWeight: 600,
@@ -586,7 +597,7 @@ export default function TaskCreationModal({
               </Typography>
 
               <Button
-                variant="contained"
+                variant='contained'
                 sx={{
                   mt: 3,
                   fontFamily: "Poppins, sans-serif",

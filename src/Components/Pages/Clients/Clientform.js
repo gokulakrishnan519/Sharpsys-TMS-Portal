@@ -19,6 +19,7 @@ import { styled } from "@mui/material/styles";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
+import Loading from "../../../Loading/Loading";
 
 export default function Clientform({
   open,
@@ -38,6 +39,7 @@ export default function Clientform({
     location: "",
     address: "",
   });
+  const [loading, setLoading] = useState(false);
 
   // Handle Change
   const handleChange = (e) => {
@@ -108,7 +110,7 @@ export default function Clientform({
         location: formData.location,
         address: formData.address,
       };
-
+      setLoading(true);
       axios
         .post("http://10.10.0.108:8000/client/creation", payload)
         .then((res) => {
@@ -117,6 +119,7 @@ export default function Clientform({
           handleClose();
           // setShowSuccess(true);
           onSuccess();
+          setLoading(false);
         })
         .catch((err) => {
           console.log(err);
@@ -182,317 +185,327 @@ export default function Clientform({
           fontFamily: "'Poppins', sans-serif",
         }}
       >
-        <CloseIcon
-          sx={{ position: "absolute", top: 10, right: 10, cursor: "pointer" }}
-          onClick={(e) => {
-            handleClose(e);
-            setErrors({});
-            setFormData({});
-          }}
-        />
-
-        <Grid sx={{ padding: 3 }}>
-          <Grid sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-            <Typography
+        {loading ? (
+          <Loading />
+        ) : (
+          <>
+            <CloseIcon
               sx={{
-                textAlign: "center",
-                fontSize: "1.2rem",
-                fontFamily: "'Poppins', sans-serif",
-                fontWeight: 500,
+                position: "absolute",
+                top: 10,
+                right: 10,
+                cursor: "pointer",
               }}
-            >
-              Add New Client
-            </Typography>
-          </Grid>
-
-          <Grid
-            sx={{
-              border: "1px solid #f2f2f2",
-              padding: 2,
-              borderRadius: "10px",
-            }}
-          >
-            <Box
-              sx={{
-                display: "grid",
-                // gridTemplateColumns: "1fr 1fr",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "1fr 1fr",
-                  lg: "1fr 1fr",
-                },
-                columnGap: 2,
-                rowGap: 1.5,
+              onClick={(e) => {
+                handleClose(e);
+                setErrors({});
+                setFormData({});
               }}
-            >
-              {/* Company Name */}
-              <Box>
+            />
+            <Grid sx={{ padding: 3 }}>
+              <Grid sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
                 <Typography
                   sx={{
-                    fontSize: 12,
-                    mb: 0.5,
+                    textAlign: "center",
+                    fontSize: "1.2rem",
                     fontFamily: "'Poppins', sans-serif",
+                    fontWeight: 500,
                   }}
                 >
-                  Company Name
+                  Add New Client
                 </Typography>
+              </Grid>
 
-                <TextField
-                  name='company_name'
-                  value={formData.company_name}
-                  onChange={handleChange}
-                  error={!!errors.company_name}
-                  helperText={errors.company_name}
-                  fullWidth
-                  size='small'
-                  placeholder='Enter Company Name'
-                  sx={textFieldStyle}
-                />
-              </Box>
-
-              {/* Industry */}
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    mb: 0.5,
-                    fontFamily: "'Poppins', sans-serif",
-                  }}
-                >
-                  Industry
-                </Typography>
-
-                <TextField
-                  name='industry'
-                  value={formData.industry}
-                  onChange={handleChange}
-                  error={!!errors.industry}
-                  helperText={errors.industry}
-                  fullWidth
-                  size='small'
-                  placeholder='Enter Industry'
-                  sx={textFieldStyle}
-                />
-              </Box>
-
-              {/* Email */}
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    mb: 0.5,
-                    fontFamily: "'Poppins', sans-serif",
-                  }}
-                >
-                  Email
-                </Typography>
-
-                <TextField
-                  name='email'
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={!!errors.email}
-                  helperText={errors.email}
-                  fullWidth
-                  size='small'
-                  placeholder='Enter Email'
-                  sx={textFieldStyle}
-                />
-              </Box>
-
-              {/* Contact Person */}
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    mb: 0.5,
-                    fontFamily: "'Poppins', sans-serif",
-                  }}
-                >
-                  Contact Person
-                </Typography>
-
-                <TextField
-                  name='contact_person'
-                  value={formData.contact_person}
-                  onChange={handleChange}
-                  error={!!errors.contact_person}
-                  helperText={errors.contact_person}
-                  fullWidth
-                  size='small'
-                  placeholder='Enter Contact Person Name'
-                  sx={textFieldStyle}
-                />
-              </Box>
-
-              {/* Phone Number */}
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    mb: 0.5,
-                    fontFamily: "'Poppins', sans-serif",
-                  }}
-                >
-                  Phone Number
-                </Typography>
-
-                <TextField
-                  name='phone_number'
-                  value={formData.phone_number}
-                  onChange={handleChange}
-                  error={!!errors.phone_number}
-                  helperText={errors.phone_number}
-                  fullWidth
-                  size='small'
-                  placeholder='Enter Phone Number'
-                  sx={textFieldStyle}
-                />
-              </Box>
-
-              {/* Location */}
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    mb: 0.5,
-                    fontFamily: "'Poppins', sans-serif",
-                  }}
-                >
-                  Location
-                </Typography>
-
-                <TextField
-                  name='location'
-                  value={formData.location}
-                  onChange={handleChange}
-                  error={!!errors.location}
-                  helperText={errors.location}
-                  fullWidth
-                  size='small'
-                  placeholder='Enter Location'
-                  sx={textFieldStyle}
-                />
-              </Box>
-            </Box>
-
-            {/* Address */}
-            <Box sx={{ mt: 1.5 }}>
-              <Typography
+              <Grid
                 sx={{
-                  fontSize: 12,
-                  mb: 0.5,
-                  fontFamily: "'Poppins', sans-serif",
+                  border: "1px solid #f2f2f2",
+                  padding: 2,
+                  borderRadius: "10px",
                 }}
               >
-                Address
-              </Typography>
-
-              <TextField
-                name='address'
-                value={formData.address}
-                onChange={handleChange}
-                error={!!errors.address}
-                helperText={errors.address}
-                fullWidth
-                multiline
-                placeholder='Enter Address'
-                size='small'
-                sx={{
-                  "& .MuiInputBase-root": {
-                    fontFamily: "'Poppins', sans-serif",
-                    fontSize: "12px",
-                    minHeight: "32px", // reduced height
-                    borderRadius: "3px",
-                  },
-
-                  "& .MuiFormHelperText-root": {
-                    fontFamily: "'Poppins', sans-serif",
-                    fontSize: "10px",
-                    marginLeft: 0,
-                    marginTop: "2px",
-                  },
-
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#d9d9d9",
+                <Box
+                  sx={{
+                    display: "grid",
+                    // gridTemplateColumns: "1fr 1fr",
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      sm: "1fr 1fr",
+                      lg: "1fr 1fr",
                     },
+                    columnGap: 2,
+                    rowGap: 1.5,
+                  }}
+                >
+                  {/* Company Name */}
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        mb: 0.5,
+                        fontFamily: "'Poppins', sans-serif",
+                      }}
+                    >
+                      Company Name
+                    </Typography>
 
-                    "&:hover fieldset": {
-                      borderColor: "#bdbdbd",
-                    },
+                    <TextField
+                      name='company_name'
+                      value={formData.company_name}
+                      onChange={handleChange}
+                      error={!!errors.company_name}
+                      helperText={errors.company_name}
+                      fullWidth
+                      size='small'
+                      placeholder='Enter Company Name'
+                      sx={textFieldStyle}
+                    />
+                  </Box>
 
-                    "&.Mui-focused fieldset": {
-                      borderColor: "rgb(16, 130, 237)",
-                      borderWidth: "1px",
-                    },
-                  },
-                }}
-              />
-            </Box>
+                  {/* Industry */}
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        mb: 0.5,
+                        fontFamily: "'Poppins', sans-serif",
+                      }}
+                    >
+                      Industry
+                    </Typography>
 
-            {/* Buttons */}
-            <Grid
-              sx={{
-                display: "flex",
-                gap: 2,
-                mt: 2,
-              }}
-            >
-              <Button
-                type='submit'
-                variant='contained'
-                sx={{
-                  color: "white",
-                  background: "#ff2d55",
-                  borderRadius: "8px",
-                  px: 2,
-                  py: 0.8,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
-                  fontFamily: "'Poppins', sans-serif",
-                  boxShadow: "none",
+                    <TextField
+                      name='industry'
+                      value={formData.industry}
+                      onChange={handleChange}
+                      error={!!errors.industry}
+                      helperText={errors.industry}
+                      fullWidth
+                      size='small'
+                      placeholder='Enter Industry'
+                      sx={textFieldStyle}
+                    />
+                  </Box>
 
-                  "&:hover": {
-                    background: "#e3264b",
-                    boxShadow: "none",
-                  },
-                }}
-                onClick={handleSubmit}
-              >
-                Create Client
-              </Button>
+                  {/* Email */}
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        mb: 0.5,
+                        fontFamily: "'Poppins', sans-serif",
+                      }}
+                    >
+                      Email
+                    </Typography>
 
-              <Button
-                type='button'
-                variant='outlined'
-                onClick={handleClose}
-                sx={{
-                  color: "#ff2d55",
-                  border: "1px solid #ff2d55",
+                    <TextField
+                      name='email'
+                      value={formData.email}
+                      onChange={handleChange}
+                      error={!!errors.email}
+                      helperText={errors.email}
+                      fullWidth
+                      size='small'
+                      placeholder='Enter Email'
+                      sx={textFieldStyle}
+                    />
+                  </Box>
 
-                  borderRadius: "8px",
-                  px: 2,
-                  py: 0.8,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
-                  fontFamily: "'Poppins', sans-serif",
-                  boxShadow: "none",
+                  {/* Contact Person */}
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        mb: 0.5,
+                        fontFamily: "'Poppins', sans-serif",
+                      }}
+                    >
+                      Contact Person
+                    </Typography>
 
-                  "&:hover": {
-                    border: "1px solid #ff2d55",
-                    boxShadow: "none",
-                    background: "transparent",
-                  },
-                }}
-              >
-                Cancel
-              </Button>
+                    <TextField
+                      name='contact_person'
+                      value={formData.contact_person}
+                      onChange={handleChange}
+                      error={!!errors.contact_person}
+                      helperText={errors.contact_person}
+                      fullWidth
+                      size='small'
+                      placeholder='Enter Contact Person Name'
+                      sx={textFieldStyle}
+                    />
+                  </Box>
+
+                  {/* Phone Number */}
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        mb: 0.5,
+                        fontFamily: "'Poppins', sans-serif",
+                      }}
+                    >
+                      Phone Number
+                    </Typography>
+
+                    <TextField
+                      name='phone_number'
+                      value={formData.phone_number}
+                      onChange={handleChange}
+                      error={!!errors.phone_number}
+                      helperText={errors.phone_number}
+                      fullWidth
+                      size='small'
+                      placeholder='Enter Phone Number'
+                      sx={textFieldStyle}
+                    />
+                  </Box>
+
+                  {/* Location */}
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        mb: 0.5,
+                        fontFamily: "'Poppins', sans-serif",
+                      }}
+                    >
+                      Location
+                    </Typography>
+
+                    <TextField
+                      name='location'
+                      value={formData.location}
+                      onChange={handleChange}
+                      error={!!errors.location}
+                      helperText={errors.location}
+                      fullWidth
+                      size='small'
+                      placeholder='Enter Location'
+                      sx={textFieldStyle}
+                    />
+                  </Box>
+                </Box>
+
+                {/* Address */}
+                <Box sx={{ mt: 1.5 }}>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      mb: 0.5,
+                      fontFamily: "'Poppins', sans-serif",
+                    }}
+                  >
+                    Address
+                  </Typography>
+
+                  <TextField
+                    name='address'
+                    value={formData.address}
+                    onChange={handleChange}
+                    error={!!errors.address}
+                    helperText={errors.address}
+                    fullWidth
+                    multiline
+                    placeholder='Enter Address'
+                    size='small'
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        fontFamily: "'Poppins', sans-serif",
+                        fontSize: "12px",
+                        minHeight: "32px", // reduced height
+                        borderRadius: "3px",
+                      },
+
+                      "& .MuiFormHelperText-root": {
+                        fontFamily: "'Poppins', sans-serif",
+                        fontSize: "10px",
+                        marginLeft: 0,
+                        marginTop: "2px",
+                      },
+
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#d9d9d9",
+                        },
+
+                        "&:hover fieldset": {
+                          borderColor: "#bdbdbd",
+                        },
+
+                        "&.Mui-focused fieldset": {
+                          borderColor: "rgb(16, 130, 237)",
+                          borderWidth: "1px",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* Buttons */}
+                <Grid
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    mt: 2,
+                  }}
+                >
+                  <Button
+                    type='submit'
+                    variant='contained'
+                    sx={{
+                      color: "white",
+                      background: "#ff2d55",
+                      borderRadius: "8px",
+                      px: 2,
+                      py: 0.8,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      fontSize: "0.85rem",
+                      fontFamily: "'Poppins', sans-serif",
+                      boxShadow: "none",
+
+                      "&:hover": {
+                        background: "#e3264b",
+                        boxShadow: "none",
+                      },
+                    }}
+                    onClick={handleSubmit}
+                  >
+                    Create Client
+                  </Button>
+
+                  <Button
+                    type='button'
+                    variant='outlined'
+                    onClick={handleClose}
+                    sx={{
+                      color: "#ff2d55",
+                      border: "1px solid #ff2d55",
+
+                      borderRadius: "8px",
+                      px: 2,
+                      py: 0.8,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      fontSize: "0.85rem",
+                      fontFamily: "'Poppins', sans-serif",
+                      boxShadow: "none",
+
+                      "&:hover": {
+                        border: "1px solid #ff2d55",
+                        boxShadow: "none",
+                        background: "transparent",
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
-          </Grid>
-        </Grid>
+          </>
+        )}
       </Dialog>
     </React.Fragment>
   );

@@ -43,6 +43,8 @@ const style = {
   boxShadow: 24,
   p: 3,
   borderRadius: "10px",
+  overflowY: "auto",
+  overflowX: "visible",
 };
 
 export default function UserManagementHeader(props) {

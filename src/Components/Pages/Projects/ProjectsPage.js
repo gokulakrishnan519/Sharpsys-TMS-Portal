@@ -67,7 +67,7 @@ const stats = [
     Icon: BusinessOutlined,
   },
   {
-    label: "Total Projects",
+    label: "Active Projects",
     key: "totalProjects",
     // value: "-",
     iconBg: "#d8f5ea",

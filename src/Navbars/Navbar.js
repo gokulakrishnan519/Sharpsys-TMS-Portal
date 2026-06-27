@@ -36,19 +36,25 @@ import AddTaskIcon from "@mui/icons-material/AddTask";
 
 const drawerWidth = 250;
 
+const role = sessionStorage.getItem("portal_role");
+
 const menuItems = [
   {
     section: "ADMIN",
-    items: [
-      // { text: "Dashboard", icon: <DashboardOutlinedIcon />, path: "Dashboard" },
-      // { text: "Work Unit", icon: <DashboardOutlinedIcon />, path: "Workunit" },
-      { text: "Users", icon: <DashboardOutlinedIcon />, path: "users" },
-      { text: "Clients", icon: <PersonIcon />, path: "Clientpage" },
-      { text: "Project", icon: <CreateNewFolderIcon />, path: "ProjectsPage" },
-      { text: "Task", icon: <AddTaskIcon />, path: "TaskMainPage" },
-    ],
+    items:
+      role === "Admin"
+        ? [
+            { text: "Users", icon: <DashboardOutlinedIcon />, path: "users" },
+            { text: "Clients", icon: <PersonIcon />, path: "Clientpage" },
+            {
+              text: "Project",
+              icon: <CreateNewFolderIcon />,
+              path: "ProjectsPage",
+            },
+            { text: "Task", icon: <AddTaskIcon />, path: "TaskMainPage" },
+          ]
+        : [{ text: "Task", icon: <AddTaskIcon />, path: "TaskMainPage" }],
   },
-
   {
     section: "TIMESHEET",
     items: [
@@ -79,13 +85,21 @@ const Navbar = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    const adminRoutes = ["/Users", "/Clientpage", "/ProjectsPage"];
+
+    if (role !== "Admin" && adminRoutes.includes(location.pathname)) {
+      navigate("/");
+    }
+  }, [location.pathname, role]);
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
 
       {/* Sidebar */}
       <Drawer
-        variant="permanent"
+        variant='permanent'
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -102,17 +116,17 @@ const Navbar = ({ children }) => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "center",
+            justifyContent: "left",
             borderBottom: "1px solid rgba(255,255,255,0.1)",
             padding: 1.5,
           }}
         >
           <Box
-            component="img"
+            component='img'
             src={Tms_logo}
-            alt="logo"
+            alt='logo'
             sx={{
-              width: 200,
+              width: 170,
               objectFit: "contain",
             }}
           />
@@ -206,7 +220,7 @@ const Navbar = ({ children }) => {
         {/* Navbar */}
 
         <AppBar
-          position="fixed"
+          position='fixed'
           elevation={0}
           sx={{
             backgroundColor: "#ffffff",
@@ -224,7 +238,7 @@ const Navbar = ({ children }) => {
             }}
           >
             <Typography
-              variant="h5"
+              variant='h5'
               sx={{
                 fontWeight: 600,
                 fontFamily: "Poppins, sans-serif",
@@ -233,7 +247,7 @@ const Navbar = ({ children }) => {
               {sessionStorage.getItem("page_name")}
             </Typography>
 
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box display='flex' alignItems='center' gap={2}>
               {/* <IconButton>
                 <SearchIcon sx={{ fontSize: 28, color: "#222" }} />
               </IconButton>
@@ -252,7 +266,7 @@ const Navbar = ({ children }) => {
               <Dialog
                 open={open}
                 onClose={handleClose}
-                maxWidth="xs"
+                maxWidth='xs'
                 fullWidth
                 PaperProps={{
                   sx: {
@@ -270,14 +284,14 @@ const Navbar = ({ children }) => {
                     fontFamily: "Poppins",
                   }}
                 >
-                  <LogoutOutlinedIcon color="error" />
+                  <LogoutOutlinedIcon color='error' />
                   Confirm Logout
                 </DialogTitle>
 
                 <DialogContent>
                   <Typography
-                    variant="body2"
-                    color="text.secondary"
+                    variant='body2'
+                    color='text.secondary'
                     sx={{ fontFamily: "Poppins" }}
                   >
                     Are you sure you want to log out?
@@ -287,7 +301,7 @@ const Navbar = ({ children }) => {
                 <DialogActions sx={{ px: 3, pb: 2 }}>
                   <Button
                     onClick={handleClose}
-                    variant="outlined"
+                    variant='outlined'
                     sx={{
                       textTransform: "none",
                       borderRadius: 2,
@@ -299,8 +313,8 @@ const Navbar = ({ children }) => {
                   </Button>
 
                   <Button
-                    variant="contained"
-                    color="error"
+                    variant='contained'
+                    color='error'
                     onClick={() => {
                       sessionStorage.clear();
                       navigate("/");

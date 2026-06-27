@@ -386,7 +386,7 @@ function DayCell({ cell, isToday, isWeekend, onClick }) {
       {/* Hover hint */}
       {!entries.length && !isWeekend && (
         <Typography
-          className="add-hint"
+          className='add-hint'
           sx={{
             fontSize: "0.6rem",
             fontFamily: FONT,
@@ -512,6 +512,7 @@ export default function TimeSheetEntry() {
       .then((res) => {
         console.log(res.data);
         setLoading(false);
+        alert("hii");
         setLeaveSuccess(
           `${leaveLabel} applied from ${dayjs(leaveFromDate).format("DD MMM")} to ${dayjs(leaveToDate).format("DD MMM YYYY")}`,
         );
@@ -577,8 +578,8 @@ export default function TimeSheetEntry() {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
             <Button
-              variant="contained"
-              size="small"
+              variant='contained'
+              size='small'
               disableElevation
               onClick={handleLeaveOpen}
               // disabled={rows.some(
@@ -602,7 +603,7 @@ export default function TimeSheetEntry() {
               Apply Leave
             </Button>
             <IconButton
-              size="small"
+              size='small'
               onClick={() => setSelectionDate((d) => d.subtract(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
@@ -618,7 +619,7 @@ export default function TimeSheetEntry() {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 views={["year", "month"]}
-                format="YYYY-MM"
+                format='YYYY-MM'
                 value={selectionDate}
                 onChange={(d) => d && setSelectionDate(d)}
                 slotProps={{ textField: { size: "small" } }}
@@ -649,7 +650,7 @@ export default function TimeSheetEntry() {
             </LocalizationProvider>
 
             <IconButton
-              size="small"
+              size='small'
               onClick={() => setSelectionDate((d) => d.add(1, "month"))}
               sx={{
                 border: "1.5px solid #E2E8F0",
@@ -668,22 +669,22 @@ export default function TimeSheetEntry() {
         <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
           <SummaryCard
             icon={<BusinessCenterIcon />}
-            label="Present"
+            label='Present'
             value={summary.present}
-            color="#22C55E"
+            color='#22C55E'
           />
           <SummaryCard
             icon={<BeachAccessOutlinedIcon />}
-            label="Leaves"
+            label='Leaves'
             value={summary.leaves}
-            color="#F97316"
+            color='#F97316'
           />
           <SummaryCard
             icon={<AccessTimeIcon />}
-            label="Total Hours"
+            label='Total Hours'
             value={summary.totalHours}
-            color="#0EA5E9"
-            sub="hrs"
+            color='#0EA5E9'
+            sub='hrs'
           />
         </Box>
 
@@ -719,7 +720,7 @@ export default function TimeSheetEntry() {
                 {WEEK_DAYS.map((day, i) => (
                   <TableCell
                     key={day}
-                    align="center"
+                    align='center'
                     sx={{
                       fontFamily: FONT,
                       fontSize: "0.7rem",
@@ -811,7 +812,7 @@ export default function TimeSheetEntry() {
           >
             <Box sx={{ position: "absolute", top: 10, right: 10 }}>
               <IconButton
-                size="small"
+                size='small'
                 onClick={() => {
                   setOpen1(false);
                   fetchTimesheet();
@@ -844,7 +845,7 @@ export default function TimeSheetEntry() {
         <Dialog
           open={leaveModalOpen}
           // onClose={handleLeaveClose}
-          maxWidth="sm"
+          maxWidth='sm'
           fullWidth
           PaperProps={{
             elevation: 0,
@@ -890,7 +891,7 @@ export default function TimeSheetEntry() {
               </Typography>
             </Box>
             <IconButton
-              size="small"
+              size='small'
               onClick={handleLeaveClose}
               sx={{
                 color: "#9ca3af",
@@ -1031,7 +1032,7 @@ export default function TimeSheetEntry() {
                           >
                             {leave.label}
                             <Box
-                              component="span"
+                              component='span'
                               sx={{
                                 ml: 1,
                                 px: 0.8,
@@ -1129,7 +1130,7 @@ export default function TimeSheetEntry() {
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                           value={leaveFromDate ? dayjs(leaveFromDate) : null}
-                          format="DD-MM-YYYY"
+                          format='DD-MM-YYYY'
                           minDate={dayjs()}
                           onChange={(newValue) => {
                             setLeaveFromDate(newValue);
@@ -1188,7 +1189,7 @@ export default function TimeSheetEntry() {
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                           value={leaveToDate ? dayjs(leaveToDate) : null}
-                          format="DD-MM-YYYY"
+                          format='DD-MM-YYYY'
                           minDate={
                             leaveFromDate ? dayjs(leaveFromDate) : dayjs()
                           }
@@ -1251,8 +1252,8 @@ export default function TimeSheetEntry() {
                     fullWidth
                     multiline
                     rows={2}
-                    size="small"
-                    placeholder="Brief reason for your leave…"
+                    size='small'
+                    placeholder='Brief reason for your leave…'
                     value={leaveReason}
                     onChange={(e) => setLeaveReason(e.target.value)}
                     error={leaveSubmitError && !leaveReason.trim()}
@@ -1283,8 +1284,8 @@ export default function TimeSheetEntry() {
               }}
             >
               <Button
-                variant="outlined"
-                size="small"
+                variant='outlined'
+                size='small'
                 onClick={handleLeaveClose}
                 sx={{
                   fontFamily: "Poppins, sans-serif",
@@ -1305,8 +1306,8 @@ export default function TimeSheetEntry() {
                 Cancel
               </Button>
               <Button
-                variant="contained"
-                size="small"
+                variant='contained'
+                size='small'
                 disableElevation
                 onClick={handleLeaveSubmit}
                 sx={{

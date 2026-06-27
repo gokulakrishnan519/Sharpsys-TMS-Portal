@@ -18,12 +18,13 @@ import {
   Modal,
   Grid,
   Dialog,
+  TablePagination,
 } from "@mui/material";
 
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import UserCreationModal from "./Modal/UserCreationModal";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../../Loading/Loading";
@@ -40,6 +41,14 @@ const style = {
   boxShadow: 24,
   p: 3,
   borderRadius: "10px",
+
+  // Fixed height with scroll
+  height: "90vh",
+  width: "50%",
+  overflowY: "auto",
+
+  border: "none",
+  outline: "none",
 };
 
 function Success({ handleClose }) {
@@ -125,11 +134,25 @@ export default function UserManagementHeader(props) {
   const [userList, setUserList] = useState(null);
   const { loading, setLoading } = React.useContext(UserContext);
   const [showSuccess, setShowSuccess] = useState(false);
-
+  const [pageMap, setPageMap] = useState({});
+  const [rowsPerPageMap, setRowsPerPageMap] = useState({});
   const navigate = useNavigate();
+  const handleChangePage = (sectionIndex, event, newPage) => {
+    setPageMap((prev) => ({ ...prev, [sectionIndex]: newPage }));
+  };
 
+  const handleChangeRowsPerPage = (sectionIndex, event) => {
+    setRowsPerPageMap((prev) => ({
+      ...prev,
+      [sectionIndex]: parseInt(event.target.value, 10),
+    }));
+    setPageMap((prev) => ({ ...prev, [sectionIndex]: 0 })); // reset to first page
+  };
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    userListpage();
+  };
 
   const handleChange = (event, newValue) => {
     if (newValue !== null) {
@@ -251,107 +274,126 @@ export default function UserManagementHeader(props) {
 
         <Box sx={{ background: "#f5f5f5" }}>
           {userList &&
-            userList.map((section, index) => (
-              <Paper
-                key={index}
-                elevation={0}
-                sx={{
-                  overflow: "hidden",
-                }}
-              >
-                {/* Section Header */}
-                <Box
+            userList.map((section, index) => {
+              const page = pageMap[index] ?? 0;
+              const rowsPerPage = rowsPerPageMap[index] ?? 10;
+              const totalRows = section.data.length;
+              const paginatedRows = section.data.slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage,
+              );
+              return (
+                <Paper
+                  key={index}
+                  elevation={0}
                   sx={{
-                    background: "#d9d7e1",
-                    px: 2,
-                    py: 1.2,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
+                    overflow: "hidden",
                   }}
                 >
-                  <Typography
+                  {/* Section Header */}
+                  <Box
                     sx={{
-                      fontFamily: "Poppins, sans-serif",
-                      fontWeight: 600,
-                      fontSize: "20px",
-                      color: "#2e2e2e",
+                      background: "#d9d7e1",
+                      px: 2,
+                      py: 1.2,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
                     }}
                   >
-                    {section.DepartmentName}
-                  </Typography>
-
-                  {section.handledBy && (
                     <Typography
                       sx={{
                         fontFamily: "Poppins, sans-serif",
-                        fontSize: "12px",
-                        color: "#2f2f2f",
+                        fontWeight: 600,
+                        fontSize: "20px",
+                        color: "#2e2e2e",
                       }}
                     >
-                      No
+                      {section.DepartmentName}
                     </Typography>
-                  )}
-                </Box>
 
-                {/* Table */}
-                <TableContainer>
-                  <Table size='small'>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={headerStyle}>User ID</TableCell>
-                        <TableCell sx={headerStyle}>User Name</TableCell>
-                        <TableCell sx={headerStyle}>Role</TableCell>
-                        <TableCell sx={headerStyle}>Responsibility</TableCell>
-                        <TableCell sx={headerStyle}>Employee Email</TableCell>
-                      </TableRow>
-                    </TableHead>
+                    {section.handledBy && (
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "12px",
+                          color: "#2f2f2f",
+                        }}
+                      >
+                        No
+                      </Typography>
+                    )}
+                  </Box>
 
-                    <TableBody>
-                      {section.data.map((row, rowIndex) => (
-                        <TableRow key={rowIndex}>
-                          <TableCell sx={cellStyle}>{row.EmployeeId}</TableCell>
-                          <TableCell sx={cellStyle}>
-                            {row.EmployeeName}
-                          </TableCell>
-                          <TableCell sx={cellStyle}>{row.RoleName}</TableCell>
-                          <TableCell sx={cellStyle}>
-                            {row.Responsibility}
-                          </TableCell>
-                          <TableCell sx={cellStyle}>
-                            {row.EmployeeEmail}
-                          </TableCell>
+                  {/* Table */}
+                  <TableContainer>
+                    <Table size='small'>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={headerStyle}>User ID</TableCell>
+                          <TableCell sx={headerStyle}>User Name</TableCell>
+                          <TableCell sx={headerStyle}>Role</TableCell>
+                          <TableCell sx={headerStyle}>Responsibility</TableCell>
+                          <TableCell sx={headerStyle}>Employee Email</TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Paper>
-            ))}
+                      </TableHead>
+
+                      <TableBody>
+                        {paginatedRows.map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            <TableCell sx={cellStyle}>
+                              {row.EmployeeId}
+                            </TableCell>
+                            <TableCell sx={cellStyle}>
+                              {row.EmployeeName}
+                            </TableCell>
+                            <TableCell sx={cellStyle}>{row.RoleName}</TableCell>
+                            <TableCell sx={cellStyle}>
+                              {row.Responsibility}
+                            </TableCell>
+                            <TableCell sx={cellStyle}>
+                              {row.EmployeeEmail}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    <TablePagination
+                      component='div'
+                      count={totalRows}
+                      page={page}
+                      onPageChange={(event, newPage) =>
+                        handleChangePage(index, event, newPage)
+                      }
+                      rowsPerPage={rowsPerPage}
+                      onRowsPerPageChange={(event) =>
+                        handleChangeRowsPerPage(index, event)
+                      }
+                      rowsPerPageOptions={[5, 10, 25, 50]}
+                      sx={{
+                        borderTop: "1px solid #e5e7eb",
+                        "& .MuiTablePagination-toolbar": {
+                          fontFamily: "'Poppins', sans-serif",
+                        },
+                        "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+                          {
+                            fontFamily: "'Poppins', sans-serif",
+                          },
+                      }}
+                    />
+                  </TableContainer>
+                </Paper>
+              );
+            })}
         </Box>
 
         <div>
           <Modal
             open={open}
-            onClose={handleClose}
             aria-labelledby='modal-modal-title'
             aria-describedby='modal-modal-description'
           >
             <Box sx={style}>
-              <Grid
-                sx={{
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  setOpen(false);
-                  userListpage();
-                }}
-              >
-                <CloseOutlinedIcon />
-              </Grid>
               <UserCreationModal
                 onSuccess={() => setShowSuccess(true)}
                 handleClose={handleClose}

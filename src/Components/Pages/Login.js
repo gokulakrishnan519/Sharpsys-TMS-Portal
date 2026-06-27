@@ -119,30 +119,43 @@ export default function Login() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+
   const handleLogin = async () => {
     const payload = {
       employeeemail: email,
       password: password,
     };
-
+    setLoading(true);
     await axios
       .post("http://10.10.0.108:8000/login", payload)
       .then((res) => {
         console.log(res.data);
         // alert(res.data.message);
         if (res.data.message !== "Invalid email or password") {
-          navigate("/Users");
           sessionStorage.setItem("employeeId", res.data.employeeId);
           sessionStorage.setItem("departmentId", res.data.departmentId);
           sessionStorage.setItem("roleId", res.data.roleId);
+          sessionStorage.setItem("portal_role", res.data.employeeRole);
+
+          if (res.data.employeeRole == "Admin") {
+            navigate("/Users");
+            window.location.reload();
+          } else {
+            navigate("/TaskMainPage");
+            window.location.reload();
+          }
         } else {
           setErrorMessage(res.data.message);
           setOpenDialog(true);
         }
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
         setErrorMessage(err.response?.data?.message || "Something went wrong");
+        setOpenDialog(true);
+        setLoading(false);
+
         // alert("Email or Password are incorrect!");
       });
   };
@@ -251,7 +264,7 @@ export default function Login() {
 
             {/* Headline */}
             <Typography
-              component="h1"
+              component='h1'
               sx={{
                 fontFamily: FONT,
                 fontSize: 36,
@@ -265,7 +278,7 @@ export default function Login() {
               Every hour,
               <br />
               <Box
-                component="span"
+                component='span'
                 sx={{
                   fontFamily: FONT,
                   background: "linear-gradient(90deg, #A5B4FC, #7DD3FC)",
@@ -417,7 +430,7 @@ export default function Login() {
             {/* Error */}
             {error && (
               <Alert
-                severity="error"
+                severity='error'
                 sx={{
                   mb: 2,
                   fontSize: 13,
@@ -437,7 +450,7 @@ export default function Login() {
             {/* Email */}
             <Box sx={{ mb: 2 }}>
               <Typography
-                component="label"
+                component='label'
                 sx={{
                   fontFamily: FONT,
                   display: "block",
@@ -452,16 +465,16 @@ export default function Login() {
                 Work Email
               </Typography>
               <TextField
-                type="email"
-                placeholder="you@company.com"
+                type='email'
+                placeholder='you@company.com'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={handleKeyDown}
-                autoComplete="email"
+                autoComplete='email'
                 inputProps={{ style: { fontFamily: FONT } }}
                 InputProps={{
                   startAdornment: (
-                    <InputAdornment position="start">
+                    <InputAdornment position='start'>
                       <EmailOutlinedIcon />
                     </InputAdornment>
                   ),
@@ -472,7 +485,7 @@ export default function Login() {
             {/* Password */}
             <Box sx={{ mb: 0.5 }}>
               <Typography
-                component="label"
+                component='label'
                 sx={{
                   fontFamily: FONT,
                   display: "block",
@@ -488,30 +501,30 @@ export default function Login() {
               </Typography>
               <TextField
                 type={showPw ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder='••••••••'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
-                autoComplete="current-password"
+                autoComplete='current-password'
                 inputProps={{ style: { fontFamily: FONT } }}
                 InputProps={{
                   startAdornment: (
-                    <InputAdornment position="start">
+                    <InputAdornment position='start'>
                       <LockOutlinedIcon />
                     </InputAdornment>
                   ),
                   endAdornment: (
-                    <InputAdornment position="end">
+                    <InputAdornment position='end'>
                       <IconButton
                         onClick={() => setShowPw((v) => !v)}
-                        edge="end"
-                        size="small"
+                        edge='end'
+                        size='small'
                         sx={{ color: "#94A3B8" }}
                       >
                         {showPw ? (
-                          <VisibilityOffOutlinedIcon fontSize="small" />
+                          <VisibilityOffOutlinedIcon fontSize='small' />
                         ) : (
-                          <VisibilityOutlinedIcon fontSize="small" />
+                          <VisibilityOutlinedIcon fontSize='small' />
                         )}
                       </IconButton>
                     </InputAdornment>
@@ -523,8 +536,8 @@ export default function Login() {
             {/* Forgot password */}
             <Box sx={{ textAlign: "right", mb: 2.5 }}>
               <Link
-                href="/forgot-password"
-                underline="hover"
+                href='/forgot-password'
+                underline='hover'
                 sx={{ fontFamily: FONT, fontSize: 12, color: "#6366F1" }}
               >
                 Forgot password?
@@ -534,7 +547,7 @@ export default function Login() {
             {/* Submit */}
             <Button
               fullWidth
-              variant="contained"
+              variant='contained'
               onClick={handleLogin}
               disabled={loading}
               disableElevation
@@ -579,8 +592,8 @@ export default function Login() {
             >
               Having trouble?{" "}
               <Link
-                href="mailto:it@company.com"
-                underline="hover"
+                href='mailto:it@company.com'
+                underline='hover'
                 sx={{ fontFamily: FONT, color: "#818CF8" }}
               >
                 Contact IT Support
@@ -597,7 +610,7 @@ export default function Login() {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} variant="contained">
+          <Button onClick={() => setOpenDialog(false)} variant='contained'>
             OK
           </Button>
         </DialogActions>
