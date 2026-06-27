@@ -11,6 +11,7 @@ import ProjectsPage from "./Components/Pages/Projects/ProjectsPage";
 import Dashboard from "./Components/Pages/Dashboard/Dashboard";
 import Workunit from "./Components/Pages/Workunit/Workunit";
 import TaskMainPage from "./Components/Pages/Tasks/TaskMainPage";
+import ReportTable from "./Components/Pages/Reports/ReportTable";
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,7 @@ function App() {
           <Route path='/TaskMainPage' element={<TaskMainPage />} />
           <Route path='/ProjectsPage' element={<ProjectsPage />} />
           <Route path='/TimeSheetEntry' element={<TimeSheetEntry />} />
+          <Route path='/ReportTable' element={<ReportTable />} />
           <Route path='/ErrorHandling' element={<ErrorHandling />} />
         </Routes>
       </UserContext.Provider>

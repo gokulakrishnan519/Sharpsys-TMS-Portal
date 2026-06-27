@@ -69,16 +69,22 @@ function StatCard({ stat, value }) {
     <Card
       elevation={0}
       sx={{
-        borderRadius: "16px",
-        border: `1px solid ${stat.borderColor}33`,
+        borderRadius: "18px",
+        // border: `1px solid ${stat.borderColor}26`,
         background: stat.cardGradient,
         position: "relative",
         overflow: "visible",
         pt: 3,
-        minWidth: 150,
+        minWidth: 160,
+        boxShadow: `0 1px 2px rgba(16,24,40,0.04), 0 8px 20px -6px ${stat.borderColor}29`,
+        transition: "transform 200ms ease, box-shadow 200ms ease",
+        "&:hover": {
+          transform: "translateY(-3px)",
+          boxShadow: `0 1px 2px rgba(16,24,40,0.06), 0 14px 28px -8px ${stat.borderColor}3D`,
+        },
       }}
     >
-      {/* Icon circle: 44px tall, top: -22px = exactly 50% outside, 50% inside */}
+      {/* Icon badge: floating, layered for depth rather than a flat outline */}
       <Box
         sx={{
           position: "absolute",
@@ -88,32 +94,45 @@ function StatCard({ stat, value }) {
           width: 44,
           height: 44,
           borderRadius: "50%",
-          backgroundColor: stat.iconBg,
+          backgroundColor: "#ffffff",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          border: `1px solid ${stat.iconColor}33`,
+          boxShadow: `0 0 0 4px ${stat.cardGradient ? "#ffffff" : "#fff"}, 0 4px 10px -2px ${stat.borderColor}40, 0 2px 4px rgba(16,24,40,0.06)`,
           zIndex: 1,
         }}
       >
-        <Icon sx={{ color: stat.iconColor, fontSize: 24 }} />
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            backgroundColor: stat.iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon sx={{ color: stat.iconColor, fontSize: 18 }} />
+        </Box>
       </Box>
 
       <CardContent
         sx={{
           textAlign: "center",
-          pt: 2,
-          pb: "16px !important",
+          pt: 2.5,
+          pb: "18px !important",
           px: 2,
         }}
       >
         <Typography
           sx={{
-            fontSize: 36,
-            fontWeight: 500,
+            fontSize: 34,
+            fontWeight: 600,
             color: stat.valueColor,
             lineHeight: 1.1,
             mb: 0.5,
+            letterSpacing: "-0.02em",
             fontFamily: "Poppins, sans-serif",
           }}
         >
@@ -121,10 +140,12 @@ function StatCard({ stat, value }) {
         </Typography>
         <Typography
           sx={{
-            fontSize: 13,
+            fontSize: 12.5,
             fontWeight: 500,
-            color: "#8a8fa8",
+            color: "#6B7280",
             lineHeight: 1.3,
+            letterSpacing: "0.01em",
+            textTransform: "uppercase",
             fontFamily: "Poppins, sans-serif",
           }}
         >
@@ -187,7 +208,10 @@ export default function MainPage() {
               p: 2,
             }}
           >
-            <BottomTablePage handleLoadingFalse={handleLoadingFalse} />
+            <BottomTablePage
+              handleLoadingFalse={handleLoadingFalse}
+              fetchTotalvalues={fetchTotalvalues}
+            />
           </Box>
         </Navbar>
       )}

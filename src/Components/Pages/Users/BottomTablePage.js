@@ -19,6 +19,7 @@ import {
   Grid,
   Dialog,
   TablePagination,
+  TextField,
 } from "@mui/material";
 
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
@@ -29,7 +30,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../../Loading/Loading";
 import UserContext from "../../../UseContext/UserContext";
-
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
 const style = {
   position: "absolute",
   top: "50%",
@@ -137,6 +139,7 @@ export default function UserManagementHeader(props) {
   const [pageMap, setPageMap] = useState({});
   const [rowsPerPageMap, setRowsPerPageMap] = useState({});
   const navigate = useNavigate();
+  const [searchMap, setSearchMap] = useState({});
   const handleChangePage = (sectionIndex, event, newPage) => {
     setPageMap((prev) => ({ ...prev, [sectionIndex]: newPage }));
   };
@@ -148,10 +151,48 @@ export default function UserManagementHeader(props) {
     }));
     setPageMap((prev) => ({ ...prev, [sectionIndex]: 0 })); // reset to first page
   };
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     userListpage();
+    props.fetchTotalvalues();
+  };
+  const handleSearchChange = (sectionIndex, value) => {
+    setSearchMap((prev) => ({
+      ...prev,
+      [sectionIndex]: value,
+    }));
+
+    // Reset to first page whenever search changes
+    setPageMap((prev) => ({
+      ...prev,
+      [sectionIndex]: 0,
+    }));
+  };
+  const textFieldStyle = {
+    "& .MuiInputBase-root": {
+      fontFamily: "'Poppins', sans-serif",
+      fontSize: "12px",
+      minHeight: "32px", // reduced height
+      // borderRadius: "3px",
+    },
+
+    "& .MuiInputBase-input": {
+      padding: "7px 10px", // smaller padding
+    },
+
+    "& .MuiFormHelperText-root": {
+      fontFamily: "'Poppins', sans-serif",
+      fontSize: "10px",
+      marginLeft: 0,
+      marginTop: "2px",
+    },
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        border: "none",
+      },
+    },
   };
 
   const handleChange = (event, newValue) => {
@@ -277,8 +318,15 @@ export default function UserManagementHeader(props) {
             userList.map((section, index) => {
               const page = pageMap[index] ?? 0;
               const rowsPerPage = rowsPerPageMap[index] ?? 10;
-              const totalRows = section.data.length;
-              const paginatedRows = section.data.slice(
+              const search = (searchMap[index] ?? "").toLowerCase();
+
+              const filteredRows = section.data.filter((row) =>
+                Object.values(row).join(" ").toLowerCase().includes(search),
+              );
+
+              const totalRows = filteredRows.length;
+
+              const paginatedRows = filteredRows.slice(
                 page * rowsPerPage,
                 page * rowsPerPage + rowsPerPage,
               );
@@ -311,6 +359,30 @@ export default function UserManagementHeader(props) {
                     >
                       {section.DepartmentName}
                     </Typography>
+                    <TextField
+                      fullWidth
+                      size='small'
+                      placeholder='Search...'
+                      value={searchMap[index] ?? ""}
+                      onChange={(e) =>
+                        handleSearchChange(index, e.target.value)
+                      }
+                      sx={{
+                        ...textFieldStyle,
+                        background: "white",
+                        borderRadius: "15px",
+                        width: 150,
+                      }}
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <SearchIcon sx={{ fontSize: 18 }} />
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
 
                     {section.handledBy && (
                       <Typography

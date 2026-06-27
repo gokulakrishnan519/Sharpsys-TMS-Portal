@@ -17,6 +17,7 @@ import {
   DialogActions,
   DialogTitle,
   DialogContent,
+  Grid,
 } from "@mui/material";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
@@ -33,6 +34,8 @@ import Tms_logo from "../Images/TMS Logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AddTaskIcon from "@mui/icons-material/AddTask";
+
+import SummarizeIcon from "@mui/icons-material/Summarize";
 
 const drawerWidth = 250;
 
@@ -52,6 +55,7 @@ const menuItems = [
               path: "ProjectsPage",
             },
             { text: "Task", icon: <AddTaskIcon />, path: "TaskMainPage" },
+            { text: "Report", icon: <SummarizeIcon />, path: "ReportTable" },
           ]
         : [{ text: "Task", icon: <AddTaskIcon />, path: "TaskMainPage" }],
   },
@@ -126,7 +130,8 @@ const Navbar = ({ children }) => {
             src={Tms_logo}
             alt='logo'
             sx={{
-              width: 170,
+              paddingLeft: 2,
+              height: 30,
               objectFit: "contain",
             }}
           />
@@ -248,21 +253,23 @@ const Navbar = ({ children }) => {
             </Typography>
 
             <Box display='flex' alignItems='center' gap={2}>
-              {/* <IconButton>
-                <SearchIcon sx={{ fontSize: 28, color: "#222" }} />
-              </IconButton>
+              <Grid
+                sx={{
+                  display: "flex",
+                  justifyContent: "right",
+                  alignItems: "center",
+                }}
+              >
+                <IconButton onClick={handleOpen}>
+                  <AccountCircleOutlinedIcon
+                    sx={{ fontSize: 28, color: "#2e2e2e" }}
+                  />
+                </IconButton>
+                <Grid sx={{ fontFamily: "Poppins" }}>
+                  {sessionStorage.getItem("employeeName")}
+                </Grid>
+              </Grid>
 
-              <IconButton>
-                <NotificationsNoneIcon
-                  sx={{ fontSize: 28, color: "#ff2d55" }}
-                />
-              </IconButton> */}
-
-              <IconButton onClick={handleOpen}>
-                <AccountCircleOutlinedIcon
-                  sx={{ fontSize: 28, color: "#2e2e2e" }}
-                />
-              </IconButton>
               <Dialog
                 open={open}
                 onClose={handleClose}
@@ -294,7 +301,8 @@ const Navbar = ({ children }) => {
                     color='text.secondary'
                     sx={{ fontFamily: "Poppins" }}
                   >
-                    Are you sure you want to log out?
+                    Are you sure you want to log out{" "}
+                    {sessionStorage.getItem("employeeName")}?
                   </Typography>
                 </DialogContent>
 

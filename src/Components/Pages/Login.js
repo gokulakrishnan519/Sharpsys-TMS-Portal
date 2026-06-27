@@ -136,13 +136,14 @@ export default function Login() {
           sessionStorage.setItem("departmentId", res.data.departmentId);
           sessionStorage.setItem("roleId", res.data.roleId);
           sessionStorage.setItem("portal_role", res.data.employeeRole);
+          sessionStorage.setItem("employeeName", res.data.employeeName);
 
           if (res.data.employeeRole == "Admin") {
             navigate("/Users");
-            window.location.reload();
+            //window.location.reload();
           } else {
             navigate("/TaskMainPage");
-            window.location.reload();
+            //window.location.reload();
           }
         } else {
           setErrorMessage(res.data.message);
