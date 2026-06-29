@@ -112,7 +112,7 @@ export default function Clientform({
       };
       setLoading(true);
       axios
-        .post("http://10.10.0.108:8000/client/creation", payload)
+        .post("http://10.10.0.108:8080/client/creation", payload)
         .then((res) => {
           console.log(res.data);
           refreshClient();

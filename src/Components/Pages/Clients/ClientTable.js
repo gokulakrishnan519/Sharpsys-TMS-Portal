@@ -21,7 +21,7 @@ export default function ClientTable() {
   const fetchClients = async () => {
     setLoading(true);
     await axios
-      .get("http://10.10.0.108:8000/clientlist")
+      .get("http://10.10.0.108:8080/clientlist")
       .then((res) => {
         console.log(res.data);
 

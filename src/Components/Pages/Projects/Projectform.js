@@ -110,7 +110,7 @@ export default function Projectform({
 
   const fetchClientnames = async () => {
     await axios
-      .get("http://10.10.0.108:8000/dropdown/clientname")
+      .get("http://10.10.0.108:8080/dropdown/clientname")
       .then((res) => {
         console.log(res.data);
         setClients(res.data);
@@ -149,7 +149,7 @@ export default function Projectform({
 
       // console.log(payload);
       axios
-        .post("http://10.10.0.108:8000/project/newproject", payload)
+        .post("http://10.10.0.108:8080/project/newproject", payload)
         .then((res) => {
           console.log(res.data);
           refreshProjects();
@@ -229,7 +229,7 @@ export default function Projectform({
 
   const employeeMaster = async () => {
     try {
-      const response = await axios.get("http://10.10.0.108:8000/userlist");
+      const response = await axios.get("http://10.10.0.108:8080/userlist");
 
       const employeeList = response.data.flatMap((department) =>
         department.data.map((employee) => ({

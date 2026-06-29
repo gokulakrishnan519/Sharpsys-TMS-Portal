@@ -127,7 +127,7 @@ export default function Login() {
     };
     setLoading(true);
     await axios
-      .post("http://10.10.0.108:8000/login", payload)
+      .post("http://10.10.0.108:8080/login", payload)
       .then((res) => {
         console.log(res.data);
         // alert(res.data.message);
@@ -140,10 +140,10 @@ export default function Login() {
 
           if (res.data.employeeRole == "Admin") {
             navigate("/Users");
-            //window.location.reload();
+            window.location.reload();
           } else {
             navigate("/TaskMainPage");
-            //window.location.reload();
+            window.location.reload();
           }
         } else {
           setErrorMessage(res.data.message);

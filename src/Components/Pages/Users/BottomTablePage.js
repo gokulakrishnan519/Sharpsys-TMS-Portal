@@ -203,7 +203,7 @@ export default function UserManagementHeader(props) {
 
   const userListpage = async () => {
     try {
-      const res = await axios.get("http://10.10.0.108:8000/userlist");
+      const res = await axios.get("http://10.10.0.108:8080/userlist");
 
       setUserList(res.data);
       props.handleLoadingFalse();

@@ -99,7 +99,7 @@ export default function UserCreationModal({
 
       try {
         const response = await axios.post(
-          "http://10.10.0.108:8000/user/creation",
+          "http://10.10.0.108:8080/user/creation",
           payload,
           {
             headers: {
@@ -144,7 +144,7 @@ export default function UserCreationModal({
 
   const EmployeeRolesgetApi = () => {
     axios
-      .get("http://10.10.0.108:8000/dropdown/rolename")
+      .get("http://10.10.0.108:8080/dropdown/rolename")
       .then((res) => {
         console.log(res);
         setEmployeeRolesList(res.data);
@@ -156,7 +156,7 @@ export default function UserCreationModal({
 
   const EmployeeDepartmentgetApi = () => {
     axios
-      .get("http://10.10.0.108:8000/dropdown/departmentname")
+      .get("http://10.10.0.108:8080/dropdown/departmentname")
       .then((res) => {
         console.log(res);
         setEmployeeDepartmentList(res.data);

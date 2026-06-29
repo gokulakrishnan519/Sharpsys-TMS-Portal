@@ -283,7 +283,7 @@ function Clientpage() {
   };
   const fetchTotalvalues = async () => {
     await axios
-      .get("http://10.10.0.108:8000/homekpis")
+      .get("http://10.10.0.108:8080/homekpis")
       .then((res) => {
         console.log(res.data);
         setValue(res.data);
@@ -301,7 +301,7 @@ function Clientpage() {
   const fetchClients = async () => {
     setLoading(true);
     await axios
-      .get("http://10.10.0.108:8000/clientlist")
+      .get("http://10.10.0.108:8080/clientlist")
       .then((res) => {
         console.log(res.data);
 
