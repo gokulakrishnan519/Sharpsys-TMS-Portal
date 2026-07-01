@@ -115,7 +115,7 @@ export default function TaskCreationModal({
     console.log("Assigned by", formData.assignedBy);
 
     axios
-      .post(`http://10.10.0.108:8080/tasks/create`, payload)
+      .post(`http://10.10.0.108:8000/tasks/create`, payload)
       .then((res) => {
         console.log(res.data);
 
@@ -153,7 +153,7 @@ export default function TaskCreationModal({
   const projectMaster = async () => {
     try {
       const response = await axios.get(
-        "http://10.10.0.108:8080/dropdown/timesheetproject",
+        "http://10.10.0.108:8000/dropdown/timesheetproject",
       );
 
       const projects = response.data.map((item) => ({
@@ -169,7 +169,7 @@ export default function TaskCreationModal({
 
   const employeeMaster = async () => {
     try {
-      const response = await axios.get("http://10.10.0.108:8080/userlist");
+      const response = await axios.get("http://10.10.0.108:8000/userlist");
 
       const employeeList = response.data.flatMap((department) =>
         department.data.map((employee) => ({

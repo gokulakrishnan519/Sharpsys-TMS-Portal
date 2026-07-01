@@ -32,6 +32,7 @@ export default function Projectform({
   mode,
   refreshProjects,
   onSuccess,
+  setMode,
 }) {
   const [errors, setErrors] = useState({});
   const [formdata, setFormdata] = useState({
@@ -39,7 +40,7 @@ export default function Projectform({
     client: "",
     description: "",
     project_manager: "",
-    assigned_to: "",
+    assigned_to: [],
     priority: "",
     sla_configuration: "",
     start_date: "",
@@ -49,20 +50,31 @@ export default function Projectform({
 
   //edit
   useEffect(() => {
-    if (mode === "edit" && selectedProject) {
+    if (mode === "edit" && selectedProject && employeeOption.length) {
       setFormdata({
         project_name: selectedProject.ProjectName || "",
         client: selectedProject.ClientName || "",
         description: selectedProject.ProjectDescription || "",
-        project_manager: selectedProject.ProjectLead || "",
-        assigned_to: selectedProject.AssignedTo || "",
+
+        project_manager:
+          employeeOption.find(
+            (emp) => emp.employeeName === selectedProject.ProjectLead,
+          ) || null,
+
+        assigned_to:
+          employeeOption.filter((emp) =>
+            selectedProject.assigned_to?.some(
+              (item) => item.employeeId === emp.employeeId,
+            ),
+          ) || [],
+
         priority: selectedProject.Priority || "",
         sla_configuration: selectedProject.SLAConfiguration || "",
         start_date: selectedProject.StartDate || "",
         end_date: selectedProject.EndDate || "",
       });
     }
-  }, [selectedProject, mode]);
+  }, [selectedProject, employeeOption, mode]);
   const navigate = useNavigate();
 
   // Validation
@@ -85,7 +97,7 @@ export default function Projectform({
       newErrors.project_manager = "Project Manager is required";
     }
 
-    if (!formdata.assigned_to) {
+    if (formdata.assigned_to.length === 0) {
       newErrors.assigned_to = "Select the employee";
     }
     if (!formdata.priority.trim()) {
@@ -110,7 +122,7 @@ export default function Projectform({
 
   const fetchClientnames = async () => {
     await axios
-      .get("http://10.10.0.108:8080/dropdown/clientname")
+      .get("http://10.10.0.108:8000/dropdown/clientname")
       .then((res) => {
         console.log(res.data);
         setClients(res.data);
@@ -140,7 +152,7 @@ export default function Projectform({
         client_name: formdata.client,
         project_description: formdata.description,
         project_lead: formdata.project_manager?.employeeName,
-        assigned_to: formdata.assigned_to?.employeeName,
+        assigned_to: formdata.assigned_to?.map((item) => item.employeeId) || [],
         priority: formdata.priority,
         sla_configuration: formdata.sla_configuration,
         start_date: formdata.start_date,
@@ -149,14 +161,21 @@ export default function Projectform({
 
       // console.log(payload);
       axios
-        .post("http://10.10.0.108:8080/project/newproject", payload)
+        .post("http://10.10.0.108:8000/project/newproject", payload)
         .then((res) => {
           console.log(res.data);
           refreshProjects();
           onSuccess();
         })
         .catch((err) => {
+          const errorMessage =
+            err.response?.data?.message ||
+            err.message ||
+            "Something went wrong";
+
           console.log(err);
+
+          sessionStorage.setItem("errormessge", errorMessage);
           navigate("/ErrorHandling");
         });
       // if (mode === "edit") {
@@ -187,8 +206,7 @@ export default function Projectform({
   };
 
   const [clients, setClients] = useState([]);
-  const assignedUsers = ["Prakash", "John"];
-  const projectTypes = ["Development", "Support"];
+
   const priorities = ["High", "Medium", "Low"];
   const slaOptions = ["7 Days", "15 Days", "21 Days"];
   const projectManager = ["Javagal", "Hari"];
@@ -229,7 +247,7 @@ export default function Projectform({
 
   const employeeMaster = async () => {
     try {
-      const response = await axios.get("http://10.10.0.108:8080/userlist");
+      const response = await axios.get("http://10.10.0.108:8000/userlist");
 
       const employeeList = response.data.flatMap((department) =>
         department.data.map((employee) => ({
@@ -329,6 +347,7 @@ export default function Projectform({
                 </Typography>
 
                 <Autocomplete
+                  disableClearable
                   options={clients}
                   size='small'
                   getOptionLabel={(option) => option.CompanyName || ""}
@@ -341,6 +360,11 @@ export default function Projectform({
                     setFormdata((prev) => ({
                       ...prev,
                       client: newValue?.CompanyName || "",
+                    }));
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      client: "",
                     }));
                   }}
                   slotProps={{
@@ -494,10 +518,11 @@ export default function Projectform({
                   Assigned To
                 </Typography>
                 <Autocomplete
-                  disableClearable
+                  multiple
+                  disableCloseOnSelect
                   size='small'
                   options={employeeOption}
-                  value={formdata.assigned_to}
+                  value={formdata.assigned_to || []}
                   getOptionLabel={(option) => option?.employeeName || ""}
                   isOptionEqualToValue={(option, value) =>
                     option.employeeId === value.employeeId
@@ -507,6 +532,8 @@ export default function Projectform({
                       ...prev,
                       assigned_to: newValue,
                     }));
+
+                    console.log(formdata);
 
                     setErrors((prev) => ({
                       ...prev,
@@ -527,7 +554,7 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Select Assigned Employee'
+                      placeholder='Select Assigned Employees'
                       error={!!errors.assigned_to}
                       helperText={errors.assigned_to}
                     />
@@ -577,12 +604,19 @@ export default function Projectform({
                 </Typography>
 
                 <Autocomplete
+                  disableClearable
                   options={priorities}
+                  value={formdata.priority}
                   size='small'
                   onChange={(event, newValue) => {
                     setFormdata((prev) => ({
                       ...prev,
                       priority: newValue || "",
+                    }));
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      priority: "",
                     }));
                   }}
                   slotProps={{
@@ -625,12 +659,18 @@ export default function Projectform({
                 </Typography>
 
                 <Autocomplete
+                  disableClearable
                   options={slaOptions}
                   size='small'
                   onChange={(event, newValue) => {
                     setFormdata((prev) => ({
                       ...prev,
                       sla_configuration: newValue || "",
+                    }));
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      sla_configuration: "",
                     }));
                   }}
                   slotProps={{
@@ -676,14 +716,24 @@ export default function Projectform({
                     value={
                       formdata.start_date ? dayjs(formdata.start_date) : null
                     }
-                    onChange={(newValue) =>
+                    onChange={(newValue) => {
                       setFormdata({
                         ...formdata,
                         start_date: newValue
                           ? newValue.format("YYYY-MM-DD")
                           : "",
-                      })
-                    }
+                      });
+
+                      setFormdata({
+                        ...formdata,
+                        end_date: "",
+                      });
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        start_date: "",
+                      }));
+                    }}
                     slotProps={{
                       textField: {
                         size: "small",
@@ -744,13 +794,19 @@ export default function Projectform({
 
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
+                    minDate={dayjs(formdata.start_date)}
                     value={formdata.end_date ? dayjs(formdata.end_date) : null}
-                    onChange={(newValue) =>
+                    onChange={(newValue) => {
                       setFormdata({
                         ...formdata,
                         end_date: newValue ? newValue.format("YYYY-MM-DD") : "",
-                      })
-                    }
+                      });
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        end_date: "",
+                      }));
+                    }}
                     // sx={{
                     //   width: "100%",
                     //   "& .MuiInputBase-root": {
@@ -864,6 +920,7 @@ export default function Projectform({
           onClick={(e) => {
             handleClose(e);
             setErrors({});
+            setMode("");
             setFormdata({
               project_name: "",
               client: "",

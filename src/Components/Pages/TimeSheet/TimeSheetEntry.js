@@ -435,7 +435,7 @@ export default function TimeSheetEntry() {
   const fetchTimesheet = () => {
     setLoading(true);
     axios
-      .post("http://10.10.0.108:8080/timesheet/calendar", {
+      .post("http://10.10.0.108:8000/timesheet/calendar", {
         year: selectionDate.year(),
         month: selectionDate.format("MM"),
         employeeId: sessionStorage.getItem("employeeId"),
@@ -508,7 +508,7 @@ export default function TimeSheetEntry() {
     ];
 
     axios
-      .post(`http://10.10.0.108:8080/timesheet/create`, payload)
+      .post(`http://10.10.0.108:8000/timesheet/create`, payload)
       .then((res) => {
         console.log(res.data);
         setLoading(false);

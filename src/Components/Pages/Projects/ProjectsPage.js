@@ -255,7 +255,7 @@ function ProjectsPage() {
   const navigate = useNavigate();
   const fetchTotalvalues = async () => {
     await axios
-      .get("http://10.10.0.108:8080/homekpis")
+      .get("http://10.10.0.108:8000/homekpis")
       .then((res) => {
         console.log(res.data);
         setValue(res.data);
@@ -278,7 +278,7 @@ function ProjectsPage() {
   const handleEdit = (project) => {
     console.log("Editing Project:", project);
 
-    setSelectedProject(project);
+    // setSelectedProject(project);
     setMode("edit");
     setOpen(true);
   };
@@ -299,7 +299,7 @@ function ProjectsPage() {
   const fetchProjectdetails = async () => {
     setLoading(true);
     await axios
-      .get("http://10.10.0.108:8080/project/projectdetails")
+      .get("http://10.10.0.108:8000/project/projectdetails")
       .then((res) => {
         console.log(res.data.projects);
         setPrjdetails(res.data.projects);
@@ -492,6 +492,7 @@ function ProjectsPage() {
               handleClose={handleClose}
               selectedProject={selectedProject}
               mode={mode}
+              setMode={setMode}
               refreshProjects={fetchProjectdetails}
               onSuccess={() => setShowSuccess(true)}
             />

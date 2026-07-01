@@ -14,6 +14,7 @@ import {
   Alert,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import packageJson from "../../../package.json";
 
 import {
   Dialog,
@@ -22,11 +23,14 @@ import {
   DialogActions,
 } from "@mui/material";
 
+import SharpsysLogo from "../../Images/Sharpsys Icon.png";
+
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import ForgetPassword from "./ForgetPassword";
 
 const FONT = "'Poppins', sans-serif";
 
@@ -119,7 +123,8 @@ export default function Login() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-
+  const [reset, setReset] = useState(false);
+  const [forgetPw, setForgetPw] = useState(false);
   const handleLogin = async () => {
     const payload = {
       employeeemail: email,
@@ -127,7 +132,7 @@ export default function Login() {
     };
     setLoading(true);
     await axios
-      .post("http://10.10.0.108:8080/login", payload)
+      .post("http://10.10.0.108:8000/login", payload)
       .then((res) => {
         console.log(res.data);
         // alert(res.data.message);
@@ -223,19 +228,13 @@ export default function Login() {
             <Box
               sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 8 }}
             >
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "10px",
-                  background:
-                    "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <AccessTimeOutlinedIcon sx={{ color: "#fff", fontSize: 22 }} />
+              <Box>
+                <img
+                  src={SharpsysLogo}
+                  width={30}
+                  height={30}
+                  // style={{ margin: "20px", border: "1px solid red" }}
+                />
               </Box>
               <Box>
                 <Typography
@@ -247,7 +246,7 @@ export default function Login() {
                     letterSpacing: "-0.3px",
                   }}
                 >
-                  TimeTrack Pro
+                  Sharp Desk
                 </Typography>
                 <Typography
                   sx={{
@@ -256,9 +255,19 @@ export default function Login() {
                     color: "#64748B",
                     textTransform: "uppercase",
                     letterSpacing: "0.5px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
                   }}
                 >
-                  Enterprise Edition
+                  <span>Work</span>
+                  <span>|</span>
+                  <span>Track</span>
+                  <span>|</span>
+                  <span>Deliver</span>
+                  <span style={{ marginLeft: "8px" }}>
+                    V {packageJson.version}
+                  </span>
                 </Typography>
               </Box>
             </Box>
@@ -360,248 +369,240 @@ export default function Login() {
         </Box>
 
         {/* ── RIGHT FORM PANEL ── */}
-        <Box
-          sx={{
-            width: { xs: "100%", md: "40%" },
-            flexShrink: 0,
-            minHeight: { xs: "100vh", md: "unset" },
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            p: { xs: "32px 24px", md: "48px 40px" },
-            bgcolor: "#F8FAFC",
-            position: "relative",
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              width: 600,
-              height: 600,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
-            },
-          }}
-        >
+        {forgetPw ? (
+          <ForgetPassword />
+        ) : (
           <Box
             sx={{
-              width: "100%",
-              maxWidth: 360,
+              width: { xs: "100%", md: "40%" },
+              flexShrink: 0,
+              minHeight: { xs: "100vh", md: "unset" },
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: { xs: "32px 24px", md: "48px 40px" },
+              bgcolor: "#F8FAFC",
               position: "relative",
-              zIndex: 1,
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                width: 600,
+                height: 600,
+                borderRadius: "50%",
+                background:
+                  "radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                pointerEvents: "none",
+              },
             }}
           >
-            {/* Header */}
-            <Box sx={{ mb: 4 }}>
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: "#6366F1",
-                  textTransform: "uppercase",
-                  letterSpacing: "1.2px",
-                  mb: 1.2,
-                }}
-              >
-                Secure Sign-in
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: 22,
-                  fontWeight: 700,
-                  color: "#0F172A",
-                  letterSpacing: "-0.4px",
-                  mb: 0.75,
-                }}
-              >
-                Welcome back
-              </Typography>
-              <Typography
-                sx={{ fontFamily: FONT, fontSize: 13, color: "#64748B" }}
-              >
-                Use your corporate credentials to continue
-              </Typography>
-            </Box>
-
-            {/* Error */}
-            {error && (
-              <Alert
-                severity='error'
-                sx={{
-                  mb: 2,
-                  fontSize: 13,
-                  fontFamily: FONT,
-                  borderRadius: "8px",
-                  bgcolor: "rgba(239,68,68,0.08)",
-                  border: "1px solid rgba(239,68,68,0.2)",
-                  color: "#FCA5A5",
-                  "& .MuiAlert-icon": { color: "#FCA5A5" },
-                  "& .MuiAlert-message": { fontFamily: FONT },
-                }}
-              >
-                {error}
-              </Alert>
-            )}
-
-            {/* Email */}
-            <Box sx={{ mb: 2 }}>
-              <Typography
-                component='label'
-                sx={{
-                  fontFamily: FONT,
-                  display: "block",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#475569",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.7px",
-                  mb: 0.75,
-                }}
-              >
-                Work Email
-              </Typography>
-              <TextField
-                type='email'
-                placeholder='you@company.com'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={handleKeyDown}
-                autoComplete='email'
-                inputProps={{ style: { fontFamily: FONT } }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <EmailOutlinedIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-
-            {/* Password */}
-            <Box sx={{ mb: 0.5 }}>
-              <Typography
-                component='label'
-                sx={{
-                  fontFamily: FONT,
-                  display: "block",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#475569",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.7px",
-                  mb: 0.75,
-                }}
-              >
-                Password
-              </Typography>
-              <TextField
-                type={showPw ? "text" : "password"}
-                placeholder='••••••••'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={handleKeyDown}
-                autoComplete='current-password'
-                inputProps={{ style: { fontFamily: FONT } }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <LockOutlinedIcon />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton
-                        onClick={() => setShowPw((v) => !v)}
-                        edge='end'
-                        size='small'
-                        sx={{ color: "#94A3B8" }}
-                      >
-                        {showPw ? (
-                          <VisibilityOffOutlinedIcon fontSize='small' />
-                        ) : (
-                          <VisibilityOutlinedIcon fontSize='small' />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-
-            {/* Forgot password */}
-            <Box sx={{ textAlign: "right", mb: 2.5 }}>
-              <Link
-                href='/forgot-password'
-                underline='hover'
-                sx={{ fontFamily: FONT, fontSize: 12, color: "#6366F1" }}
-              >
-                Forgot password?
-              </Link>
-            </Box>
-
-            {/* Submit */}
-            <Button
-              fullWidth
-              variant='contained'
-              onClick={handleLogin}
-              disabled={loading}
-              disableElevation
-              sx={{ fontFamily: FONT }}
-            >
-              {loading ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    fontFamily: FONT,
-                  }}
-                >
-                  <CircularProgress size={16} sx={{ color: "#fff" }} />
-                  <Typography
-                    sx={{
-                      fontFamily: FONT,
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: "#fff",
-                    }}
-                  >
-                    Signing in…
-                  </Typography>
-                </Box>
-              ) : (
-                "Sign in"
-              )}
-            </Button>
-
-            {/* Footer */}
-            <Typography
+            <Box
               sx={{
-                fontFamily: FONT,
-                mt: 3.5,
-                textAlign: "center",
-                fontSize: 12,
-                color: "#94A3B8",
-                lineHeight: 1.7,
+                width: "100%",
+                maxWidth: 360,
+                position: "relative",
+                zIndex: 1,
               }}
             >
-              Having trouble?{" "}
-              <Link
-                href='mailto:it@company.com'
-                underline='hover'
-                sx={{ fontFamily: FONT, color: "#818CF8" }}
+              {/* Header */}
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  sx={{
+                    fontFamily: FONT,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#6366F1",
+                    textTransform: "uppercase",
+                    letterSpacing: "1.2px",
+                    mb: 1.2,
+                  }}
+                >
+                  Secure Sign-in
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: FONT,
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: "#0F172A",
+                    letterSpacing: "-0.4px",
+                    mb: 0.75,
+                  }}
+                >
+                  Welcome back
+                </Typography>
+                <Typography
+                  sx={{ fontFamily: FONT, fontSize: 13, color: "#64748B" }}
+                >
+                  Use your corporate credentials to continue
+                </Typography>
+              </Box>
+
+              {/* Error */}
+              {error && (
+                <Alert
+                  severity='error'
+                  sx={{
+                    mb: 2,
+                    fontSize: 13,
+                    fontFamily: FONT,
+                    borderRadius: "8px",
+                    bgcolor: "rgba(239,68,68,0.08)",
+                    border: "1px solid rgba(239,68,68,0.2)",
+                    color: "#FCA5A5",
+                    "& .MuiAlert-icon": { color: "#FCA5A5" },
+                    "& .MuiAlert-message": { fontFamily: FONT },
+                  }}
+                >
+                  {error}
+                </Alert>
+              )}
+
+              {/* Email */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  component='label'
+                  sx={{
+                    fontFamily: FONT,
+                    display: "block",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#475569",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.7px",
+                    mb: 0.75,
+                  }}
+                >
+                  Work Email
+                </Typography>
+                <TextField
+                  type='email'
+                  placeholder='you@company.com'
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  autoComplete='email'
+                  inputProps={{ style: { fontFamily: FONT } }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <EmailOutlinedIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+
+              {/* Password */}
+              <Box sx={{ mb: 0.5 }}>
+                <Typography
+                  component='label'
+                  sx={{
+                    fontFamily: FONT,
+                    display: "block",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#475569",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.7px",
+                    mb: 0.75,
+                  }}
+                >
+                  Password
+                </Typography>
+                <TextField
+                  type={showPw ? "text" : "password"}
+                  placeholder='••••••••'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  autoComplete='current-password'
+                  inputProps={{ style: { fontFamily: FONT } }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <LockOutlinedIcon />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          onClick={() => setShowPw((v) => !v)}
+                          edge='end'
+                          size='small'
+                          sx={{ color: "#94A3B8" }}
+                        >
+                          {showPw ? (
+                            <VisibilityOffOutlinedIcon fontSize='small' />
+                          ) : (
+                            <VisibilityOutlinedIcon fontSize='small' />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+
+              {/* Forgot password */}
+              <Box sx={{ textAlign: "right", mb: 2.5 }}>
+                <Link
+                  // href="/forgot_password"
+                  underline='hover'
+                  onClick={() => {
+                    // setReset(true);
+                    setForgetPw(true);
+                  }}
+                  sx={{
+                    fontFamily: FONT,
+                    fontSize: 12,
+                    color: "#6366F1",
+                    cursor: "pointer",
+                  }}
+                >
+                  Forget password?
+                </Link>
+              </Box>
+
+              {/* Submit */}
+              <Button
+                fullWidth
+                variant='contained'
+                onClick={handleLogin}
+                disabled={loading}
+                disableElevation
+                sx={{ fontFamily: FONT, mt: 2 }}
               >
-                Contact IT Support
-              </Link>
-            </Typography>
+                {loading ? (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      fontFamily: FONT,
+                    }}
+                  >
+                    <CircularProgress size={16} sx={{ color: "#fff" }} />
+                    <Typography
+                      sx={{
+                        fontFamily: FONT,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "#fff",
+                      }}
+                    >
+                      Signing in…
+                    </Typography>
+                  </Box>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Login Failed</DialogTitle>

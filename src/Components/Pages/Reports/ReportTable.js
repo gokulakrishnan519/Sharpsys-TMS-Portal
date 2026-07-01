@@ -30,6 +30,8 @@ import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import Navbar from "../../../Navbars/Navbar";
 import dayjs from "dayjs";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 // npm i @mui/x-date-pickers date-fns  (if not already installed)
 
@@ -98,24 +100,32 @@ const ReportTable = () => {
   const [loading, setLoading] = useState(false);
 
   const [rows, setRows] = useState([
-    // sample data — replace with API response
     {
+      employeeId: "EMP001",
+      employeeName: "Gokul",
+      project: "Portal",
       date: "2026-06-20",
-      task: "UI Development",
+      task: "UI",
       hours: 6,
-      comments: "Completed dashboard",
+      comments: "Done",
     },
     {
+      employeeId: "EMP001",
+      employeeName: "Gokul",
+      project: "Portal",
       date: "2026-06-21",
-      task: "API Integration",
-      hours: 8.5,
-      comments: "In progress",
+      task: "API",
+      hours: 7,
+      comments: "Completed",
     },
     {
-      date: "2026-06-22",
-      task: "Code Review",
-      hours: 4,
-      comments: "Reviewed PR #182",
+      employeeId: "EMP002",
+      employeeName: "Arun",
+      project: "CRM",
+      date: "2026-06-20",
+      task: "Testing",
+      hours: 8,
+      comments: "Done",
     },
   ]);
 
@@ -148,8 +158,48 @@ const ReportTable = () => {
   };
 
   const handleDownload = () => {
-    console.log("Download Excel triggered");
-    // export logic here
+    // Group rows by employee
+    const groupedData = rows.reduce((acc, row) => {
+      const key = `${row.employeeId}_${row.employeeName}`;
+
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+
+      acc[key].push({
+        Date: row.date,
+        Project: row.project,
+        Task: row.task,
+        Hours: row.hours,
+        Comments: row.comments,
+      });
+
+      return acc;
+    }, {});
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+
+    Object.keys(groupedData).forEach((key) => {
+      const sheet = XLSX.utils.json_to_sheet(groupedData[key]);
+
+      // Sheet name (max 31 chars)
+      const sheetName = key.substring(0, 31);
+
+      XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
+    });
+
+    // Download
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "Employee_Task_Report.xlsx");
   };
 
   const formatDate = (iso) => {
@@ -294,32 +344,6 @@ const ReportTable = () => {
             <Grid container spacing={2}>
               <Grid size={{ lg: 2.4, md: 12, sm: 12, xs: 12 }}>
                 <Autocomplete
-                  options={employeeOptions}
-                  value={employee}
-                  onChange={(e, newValue) => setEmployee(newValue)}
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        "& .MuiAutocomplete-option": {
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "13px",
-                        },
-                      },
-                    },
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label='Employee'
-                      size='small'
-                      sx={FIELD_SX}
-                    />
-                  )}
-                />
-              </Grid>
-
-              <Grid size={{ lg: 2.4, md: 12, sm: 12, xs: 12 }}>
-                <Autocomplete
                   options={companyOptions}
                   value={company}
                   onChange={(e, newValue) => setCompany(newValue)}
@@ -363,6 +387,32 @@ const ReportTable = () => {
                     <TextField
                       {...params}
                       label='Project'
+                      size='small'
+                      sx={FIELD_SX}
+                    />
+                  )}
+                />
+              </Grid>
+
+              <Grid size={{ lg: 2.4, md: 12, sm: 12, xs: 12 }}>
+                <Autocomplete
+                  options={employeeOptions}
+                  value={employee}
+                  onChange={(e, newValue) => setEmployee(newValue)}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        "& .MuiAutocomplete-option": {
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "13px",
+                        },
+                      },
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label='Employee'
                       size='small'
                       sx={FIELD_SX}
                     />

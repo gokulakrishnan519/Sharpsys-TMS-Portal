@@ -20,6 +20,7 @@ import {
   Dialog,
   TablePagination,
   TextField,
+  Divider,
 } from "@mui/material";
 
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
@@ -32,6 +33,9 @@ import Loading from "../../../Loading/Loading";
 import UserContext from "../../../UseContext/UserContext";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import MarkEmailReadRoundedIcon from "@mui/icons-material/MarkEmailReadRounded";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -45,97 +49,20 @@ const style = {
   borderRadius: "10px",
 
   // Fixed height with scroll
-  height: "90vh",
-  width: "50%",
+  maxHeight: "90vh",
+  maxWidth: "50%",
   overflowY: "auto",
 
   border: "none",
   outline: "none",
 };
 
-function Success({ handleClose }) {
-  return (
-    <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          py: 4,
-          gap: 1.5,
-        }}
-      >
-        <Box
-          sx={{
-            width: 52,
-            height: 52,
-            borderRadius: "50%",
-            background: "#f0fdf4",
-            border: "2px solid #bbf7d0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "24px",
-          }}
-        >
-          ✅
-        </Box>
-
-        <Typography
-          sx={{
-            fontFamily: "Poppins",
-            fontSize: "15px",
-            fontWeight: 600,
-            color: "#16a34a",
-          }}
-        >
-          User Successfully Created!
-        </Typography>
-
-        <Typography
-          sx={{
-            fontFamily: "Poppins",
-            fontSize: "13px",
-            color: "#6b7280",
-            textAlign: "center",
-          }}
-        >
-          Go Back to User Page
-        </Typography>
-        <Button
-          onClick={handleClose}
-          variant='contained'
-          sx={{
-            mt: 2,
-            minWidth: 100,
-            height: 38,
-            borderRadius: "8px",
-            textTransform: "none",
-            fontFamily: "'Poppins', sans-serif",
-            fontSize: "13px",
-            fontWeight: 600,
-            backgroundColor: "#16a34a",
-            boxShadow: "none",
-
-            "&:hover": {
-              backgroundColor: "#15803d",
-              boxShadow: "none",
-            },
-          }}
-        >
-          OK
-        </Button>
-      </Box>
-    </>
-  );
-}
-
 export default function UserManagementHeader(props) {
   const [viewType, setViewType] = useState("user");
   const [open, setOpen] = React.useState(false);
   const [userList, setUserList] = useState(null);
   const { loading, setLoading } = React.useContext(UserContext);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(true);
   const [pageMap, setPageMap] = useState({});
   const [rowsPerPageMap, setRowsPerPageMap] = useState({});
   const navigate = useNavigate();
@@ -153,6 +80,7 @@ export default function UserManagementHeader(props) {
   };
 
   const handleOpen = () => setOpen(true);
+
   const handleClose = () => {
     setOpen(false);
     userListpage();
@@ -203,7 +131,7 @@ export default function UserManagementHeader(props) {
 
   const userListpage = async () => {
     try {
-      const res = await axios.get("http://10.10.0.108:8080/userlist");
+      const res = await axios.get("http://10.10.0.108:8000/userlist");
 
       setUserList(res.data);
       props.handleLoadingFalse();
@@ -228,6 +156,11 @@ export default function UserManagementHeader(props) {
   useEffect(() => {
     userListpage();
   }, []);
+
+  // const onSuccess = () => {
+  //   setShowSuccess(true);
+  //   alert("success modal open");
+  // };
 
   return (
     <div>
@@ -467,7 +400,6 @@ export default function UserManagementHeader(props) {
           >
             <Box sx={style}>
               <UserCreationModal
-                onSuccess={() => setShowSuccess(true)}
                 handleClose={handleClose}
                 refreshClient={userListpage}
               />
@@ -475,15 +407,6 @@ export default function UserManagementHeader(props) {
           </Modal>
         </div>
       </Box>
-      <Dialog
-        open={showSuccess}
-        onClose={() => setShowSuccess(false)}
-        maxWidth='xs'
-        fullWidth
-      >
-        {/* <Success onClose={() => setShowSuccess(false)} /> */}
-        <Success handleClose={() => setShowSuccess(false)} />
-      </Dialog>
     </div>
   );
 }

@@ -9,15 +9,172 @@ import {
   Paper,
   MenuItem,
   CircularProgress,
+  Divider,
+  Modal,
 } from "@mui/material";
 import axios from "axios";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import MarkEmailReadRoundedIcon from "@mui/icons-material/MarkEmailReadRounded";
 
-export default function UserCreationModal({
-  onSuccess,
-  handleClose,
-  refreshClient,
-}) {
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  // width: "90%",
+  bgcolor: "background.paper",
+  //   border: "2px solid #000",
+  boxShadow: 24,
+  p: 3,
+  borderRadius: "10px",
+
+  // Fixed height with scroll
+  maxHeight: "90vh",
+  maxWidth: "50%",
+  overflowY: "auto",
+
+  border: "none",
+  outline: "none",
+};
+
+function Success({ handleClose }) {
+  return (
+    <Box
+      sx={{
+        width: 420,
+        p: 4,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        fontFamily: "Poppins",
+      }}
+    >
+      {/* Success Icon */}
+      <Box
+        sx={{
+          width: 72,
+          height: 72,
+          borderRadius: "50%",
+          bgcolor: "#ECFDF3",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 2,
+        }}
+      >
+        <CheckCircleRoundedIcon
+          sx={{
+            color: "#16A34A",
+            fontSize: 42,
+          }}
+        />
+      </Box>
+
+      {/* Title */}
+      <Typography
+        sx={{
+          fontSize: 22,
+          fontWeight: 700,
+          color: "#111827",
+          fontFamily: "Poppins",
+        }}
+      >
+        User Account Created
+      </Typography>
+
+      {/* Subtitle */}
+      <Typography
+        sx={{
+          mt: 1,
+          fontSize: 14,
+          color: "#6B7280",
+          textAlign: "center",
+          lineHeight: 1.7,
+          fontFamily: "Poppins",
+        }}
+      >
+        The user account has been created successfully.
+      </Typography>
+
+      <Divider sx={{ width: "100%", my: 3 }} />
+
+      {/* Email Info */}
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          gap: 2,
+          p: 2,
+          borderRadius: 2,
+          bgcolor: "#F9FAFB",
+          border: "1px solid #E5E7EB",
+        }}
+      >
+        <MarkEmailReadRoundedIcon
+          sx={{
+            color: "#2563EB",
+            fontSize: 28,
+            mt: 0.2,
+          }}
+        />
+
+        <Box>
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: 14,
+              color: "#111827",
+              fontFamily: "Poppins",
+            }}
+          >
+            Email Sent
+          </Typography>
+
+          <Typography
+            sx={{
+              fontSize: 13,
+              color: "#6B7280",
+              lineHeight: 1.6,
+              fontFamily: "Poppins",
+            }}
+          >
+            A welcome email containing the login credentials and account
+            activation details has been sent to the user's registered email
+            address.
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Button */}
+      <Button
+        variant='contained'
+        onClick={handleClose}
+        sx={{
+          mt: 4,
+          width: "100%",
+          height: 46,
+          borderRadius: "10px",
+          textTransform: "none",
+          fontSize: 15,
+          fontWeight: 600,
+          fontFamily: "Poppins",
+          bgcolor: "#16A34A",
+          boxShadow: "none",
+
+          "&:hover": {
+            bgcolor: "#15803D",
+            boxShadow: "none",
+          },
+        }}
+      >
+        Back to User Management
+      </Button>
+    </Box>
+  );
+}
+
+export default function UserCreationModal({ handleClose, refreshClient }) {
   const [formData, setFormData] = useState({
     employerId: "",
     employerName: "",
@@ -33,6 +190,7 @@ export default function UserCreationModal({
   const [empoyeeRoleList, setEmployeeRolesList] = useState(null);
   const [employeeDepartmentList, setEmployeeDepartmentList] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,7 +257,7 @@ export default function UserCreationModal({
 
       try {
         const response = await axios.post(
-          "http://10.10.0.108:8080/user/creation",
+          "http://10.10.0.108:8000/user/creation",
           payload,
           {
             headers: {
@@ -109,24 +267,28 @@ export default function UserCreationModal({
         );
 
         console.log("Success :", response.data);
-        handleClose();
-        onSuccess();
-        refreshClient();
-        // alert(response.data.message);
+        //
+        if (response.data.message == "User created successfully") {
+          setShowSuccess(true);
+          // alert("hii");
+          // alert(response.data.message);
 
-        // Reset Form
-        setFormData({
-          employerId: "",
-          employerName: "",
-          employerEmail: "",
-          department: null,
-          role: null,
-          responsibility: "",
-          password: "",
-          employee_role: "User",
-        });
-
-        setLoading(false);
+          // Reset Form
+          setFormData({
+            employerId: "",
+            employerName: "",
+            employerEmail: "",
+            department: null,
+            role: null,
+            responsibility: "",
+            password: "",
+            employee_role: "User",
+          });
+          setLoading(false);
+        } else {
+          alert(response.data.message);
+          setLoading(false);
+        }
 
         setErrors({});
       } catch (error) {
@@ -144,7 +306,7 @@ export default function UserCreationModal({
 
   const EmployeeRolesgetApi = () => {
     axios
-      .get("http://10.10.0.108:8080/dropdown/rolename")
+      .get("http://10.10.0.108:8000/dropdown/rolename")
       .then((res) => {
         console.log(res);
         setEmployeeRolesList(res.data);
@@ -156,7 +318,7 @@ export default function UserCreationModal({
 
   const EmployeeDepartmentgetApi = () => {
     axios
-      .get("http://10.10.0.108:8080/dropdown/departmentname")
+      .get("http://10.10.0.108:8000/dropdown/departmentname")
       .then((res) => {
         console.log(res);
         setEmployeeDepartmentList(res.data);
@@ -182,6 +344,7 @@ export default function UserCreationModal({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            minWidth: "30vw",
           }}
         >
           <CircularProgress aria-label='Loading…' />
@@ -726,6 +889,23 @@ export default function UserCreationModal({
           </Paper>
         </Grid>
       )}
+
+      <Modal
+        open={showSuccess}
+        aria-labelledby='modal-modal-title'
+        aria-describedby='modal-modal-description'
+      >
+        <Box sx={style}>
+          {/* <Success onClose={() => setShowSuccess(false)} /> */}
+          <Success
+            handleClose={() => {
+              setShowSuccess(false);
+              handleClose();
+              refreshClient();
+            }}
+          />
+        </Box>
+      </Modal>
     </>
   );
 }

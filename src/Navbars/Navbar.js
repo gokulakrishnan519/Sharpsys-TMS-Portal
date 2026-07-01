@@ -34,6 +34,7 @@ import Tms_logo from "../Images/TMS Logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AddTaskIcon from "@mui/icons-material/AddTask";
+import packageJson from "../../package.json";
 
 import SummarizeIcon from "@mui/icons-material/Summarize";
 
@@ -125,7 +126,7 @@ const Navbar = ({ children }) => {
             padding: 1.5,
           }}
         >
-          <Box
+          {/* <Box
             component='img'
             src={Tms_logo}
             alt='logo'
@@ -135,6 +136,37 @@ const Navbar = ({ children }) => {
               objectFit: "contain",
             }}
           />
+          <span style={{ marginLeft: "8px" }}>V {packageJson.version}</span> */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "flex-end",
+            }}
+          >
+            <Box
+              component='img'
+              src={Tms_logo}
+              alt='logo'
+              sx={{
+                pl: 2,
+                height: 30,
+                objectFit: "contain",
+              }}
+            />
+
+            <Typography
+              sx={{
+                ml: 1,
+                // mb: 0.2, // Moves the version slightly to the bottom
+                fontFamily: "Poppins, sans-serif",
+                fontSize: "8px",
+                color: "#64748B",
+                fontWeight: 500,
+              }}
+            >
+              V {packageJson.version}
+            </Typography>
+          </Box>
         </Box>
 
         {/* Menu */}

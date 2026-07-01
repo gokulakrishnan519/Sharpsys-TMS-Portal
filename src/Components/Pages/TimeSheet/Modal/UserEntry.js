@@ -374,7 +374,7 @@ export default function TimesheetForm(props) {
         );
 
     axios
-      .post(`http://10.10.0.108:8080/timesheet/create`, payload)
+      .post(`http://10.10.0.108:8000/timesheet/create`, payload)
       .then((res) => {
         console.log(res.data);
         setLoading(false);
@@ -426,7 +426,7 @@ export default function TimesheetForm(props) {
     ];
 
     axios
-      .post(`http://10.10.0.108:8080/timesheet/create`, payload)
+      .post(`http://10.10.0.108:8000/timesheet/create`, payload)
       .then((res) => {
         console.log(res.data);
         setLoading(false);
@@ -498,7 +498,7 @@ export default function TimesheetForm(props) {
   const clientMaster = async () => {
     try {
       const response = await axios.get(
-        "http://10.10.0.108:8080/dropdown/clientname",
+        "http://10.10.0.108:8000/dropdown/clientname",
       );
 
       const client = response.data.map((item) => ({
@@ -516,7 +516,7 @@ export default function TimesheetForm(props) {
   const projectMaster = async () => {
     try {
       const response = await axios
-        .get("http://10.10.0.108:8080/dropdown/timesheetproject")
+        .get("http://10.10.0.108:8000/dropdown/timesheetproject")
         .then((res) => {
           const projects = res.data.map((item) => ({
             projectId: item.ProjectID,
@@ -544,7 +544,7 @@ export default function TimesheetForm(props) {
 
     try {
       const response = await axios.post(
-        "http://10.10.0.108:8080/dropdown/tasks",
+        "http://10.10.0.108:8000/dropdown/tasks",
         payload,
       );
 

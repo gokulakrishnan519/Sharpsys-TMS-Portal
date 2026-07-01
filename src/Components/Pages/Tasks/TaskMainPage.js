@@ -165,7 +165,7 @@ export default function TaskMainPage() {
   const fetchTotalvalues = async () => {
     setLoading(true);
     await axios
-      .get("http://10.10.0.108:8080/homekpis")
+      .get("http://10.10.0.108:8000/homekpis")
       .then((res) => {
         console.log(res.data);
         setValue(res.data);
