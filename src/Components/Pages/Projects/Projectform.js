@@ -25,6 +25,7 @@ import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+
 export default function Projectform({
   open,
   handleClose,
@@ -47,13 +48,21 @@ export default function Projectform({
     end_date: "",
   });
   const [employeeOption, setEmployeeOption] = useState([]);
+  const [clients, setClients] = useState([]);
+
+  console.log(selectedProject);
 
   //edit
   useEffect(() => {
     if (mode === "edit" && selectedProject && employeeOption.length) {
       setFormdata({
         project_name: selectedProject.ProjectName || "",
-        client: selectedProject.ClientName || "",
+        client:
+          clients.find(
+            (cli) =>
+              cli.CompanyName?.trim().toLowerCase() ===
+              selectedProject.ClientName?.trim().toLowerCase(),
+          ) || null,
         description: selectedProject.ProjectDescription || "",
 
         project_manager:
@@ -61,15 +70,18 @@ export default function Projectform({
             (emp) => emp.employeeName === selectedProject.ProjectLead,
           ) || null,
 
-        assigned_to:
-          employeeOption.filter((emp) =>
-            selectedProject.assigned_to?.some(
-              (item) => item.employeeId === emp.employeeId,
-            ),
-          ) || [],
-
+        assigned_to: selectedProject?.AssignedTo.map((name, index) => ({
+          employeeId: selectedProject?.EmployeeId[index] || "",
+          employeeName: name || "",
+        })),
+        //slaOptions
         priority: selectedProject.Priority || "",
-        sla_configuration: selectedProject.SLAConfiguration || "",
+        // sla_configuration: selectedProject.SLAConfiguration || "",
+
+        sla_configuration:
+          slaOptions.find((day) => day === selectedProject.SLAConfiguration) ||
+          null,
+
         start_date: selectedProject.StartDate || "",
         end_date: selectedProject.EndDate || "",
       });
@@ -85,8 +97,8 @@ export default function Projectform({
       newErrors.project_name = "Project name is required";
     }
 
-    if (!formdata.client.trim()) {
-      newErrors.client = "Client name is required";
+    if (!formdata.client) {
+      errors.client = "Client is required";
     }
 
     if (!formdata.description.trim()) {
@@ -148,11 +160,16 @@ export default function Projectform({
         ...(mode === "edit" && {
           project_id: selectedProject?.ProjectID,
         }),
+
         project_name: formdata.project_name,
-        client_name: formdata.client,
+        client_name: formdata.client?.CompanyName || "",
         project_description: formdata.description,
         project_lead: formdata.project_manager?.employeeName,
-        assigned_to: formdata.assigned_to?.map((item) => item.employeeId) || [],
+
+        assigned_to:
+          formdata.assigned_to?.map((item) => item.employeeName) || [],
+        employee_id: formdata.assigned_to?.map((item) => item.employeeId) || [],
+
         priority: formdata.priority,
         sla_configuration: formdata.sla_configuration,
         start_date: formdata.start_date,
@@ -204,8 +221,6 @@ export default function Projectform({
       [name]: "",
     }));
   };
-
-  const [clients, setClients] = useState([]);
 
   const priorities = ["High", "Medium", "Low"];
   const slaOptions = ["7 Days", "15 Days", "21 Days"];
@@ -294,7 +309,7 @@ export default function Projectform({
         </DialogTitle>
         <DialogContent>
           <Grid
-            id='subscription-form'
+            id="subscription-form"
             sx={{
               border: "0.2px solid #d9d9d9",
               padding: 2,
@@ -323,13 +338,13 @@ export default function Projectform({
 
                 <TextField
                   fullWidth
-                  name='project_name'
+                  name="project_name"
                   value={formdata.project_name}
                   error={!!errors.project_name}
                   helperText={errors.project_name}
                   onChange={handleChange}
-                  size='small'
-                  placeholder='Enter Project Name'
+                  size="small"
+                  placeholder="Enter Project Name"
                   sx={textFieldStyle}
                 />
               </Box>
@@ -349,17 +364,13 @@ export default function Projectform({
                 <Autocomplete
                   disableClearable
                   options={clients}
-                  size='small'
+                  size="small"
                   getOptionLabel={(option) => option.CompanyName || ""}
-                  value={
-                    clients.find(
-                      (client) => client.CompanyName === formdata.client,
-                    ) || null
-                  }
+                  value={formdata.client}
                   onChange={(event, newValue) => {
                     setFormdata((prev) => ({
                       ...prev,
-                      client: newValue?.CompanyName || "",
+                      client: newValue,
                     }));
 
                     setErrors((prev) => ({
@@ -382,8 +393,8 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Select Client'
-                      name='client'
+                      placeholder="Select Client"
+                      name="client"
                       value={formdata.client}
                       error={!!errors.client}
                       helperText={errors.client}
@@ -405,15 +416,15 @@ export default function Projectform({
 
               <TextField
                 fullWidth
-                name='description'
+                name="description"
                 value={formdata.description}
                 error={!!errors.description}
                 helperText={errors.description}
                 onChange={handleChange}
                 // multiline
                 rows={1}
-                placeholder='Enter Description'
-                size='small'
+                placeholder="Enter Description"
+                size="small"
                 sx={textFieldStyle}
               />
             </Box>
@@ -438,7 +449,7 @@ export default function Projectform({
                 </Typography>
                 <Autocomplete
                   disableClearable
-                  size='small'
+                  size="small"
                   options={employeeOption}
                   value={formdata.project_manager}
                   getOptionLabel={(option) => option?.employeeName || ""}
@@ -470,7 +481,7 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Select Project Manager'
+                      placeholder="Select Project Manager"
                       error={!!errors.project_manager}
                       helperText={errors.project_manager}
                     />
@@ -520,7 +531,7 @@ export default function Projectform({
                 <Autocomplete
                   multiple
                   disableCloseOnSelect
-                  size='small'
+                  size="small"
                   options={employeeOption}
                   value={formdata.assigned_to || []}
                   getOptionLabel={(option) => option?.employeeName || ""}
@@ -554,7 +565,7 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Select Assigned Employees'
+                      placeholder="Select Assigned Employees"
                       error={!!errors.assigned_to}
                       helperText={errors.assigned_to}
                     />
@@ -607,7 +618,7 @@ export default function Projectform({
                   disableClearable
                   options={priorities}
                   value={formdata.priority}
-                  size='small'
+                  size="small"
                   onChange={(event, newValue) => {
                     setFormdata((prev) => ({
                       ...prev,
@@ -634,8 +645,8 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Select Priority'
-                      name='priority'
+                      placeholder="Select Priority"
+                      name="priority"
                       value={formdata.priority}
                       error={!!errors.priority}
                       helperText={errors.priority}
@@ -661,7 +672,8 @@ export default function Projectform({
                 <Autocomplete
                   disableClearable
                   options={slaOptions}
-                  size='small'
+                  size="small"
+                  value={formdata?.sla_configuration}
                   onChange={(event, newValue) => {
                     setFormdata((prev) => ({
                       ...prev,
@@ -688,8 +700,8 @@ export default function Projectform({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder='Autofills According to Priority'
-                      name='sla_configuration'
+                      placeholder="Autofills According to Priority"
+                      name="sla_configuration"
                       value={formdata.sla_configuration}
                       error={!!errors.sla_configuration}
                       helperText={errors.sla_configuration}
@@ -722,11 +734,6 @@ export default function Projectform({
                         start_date: newValue
                           ? newValue.format("YYYY-MM-DD")
                           : "",
-                      });
-
-                      setFormdata({
-                        ...formdata,
-                        end_date: "",
                       });
 
                       setErrors((prev) => ({
@@ -855,11 +862,11 @@ export default function Projectform({
               </Box>
             </Box>
             <Button
-              type='submit'
+              type="submit"
               onClick={handleSubmit}
-              form='subscription-form'
+              form="subscription-form"
               // color="error"
-              variant='contained'
+              variant="contained"
               sx={{
                 width: "140px",
                 borderRadius: "4px",

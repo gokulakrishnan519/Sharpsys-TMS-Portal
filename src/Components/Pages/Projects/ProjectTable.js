@@ -5,6 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { Box, Chip } from "@mui/material";
 
 export default function Tabledata(props) {
   const { p_value, client, project_manager, sla, assigned } = props;
@@ -41,7 +42,39 @@ export default function Tabledata(props) {
         <TableRow>
           <TableCell sx={{ fontWeight: 550 }}>Assigned Members</TableCell>
 
-          <TableCell>{assigned}</TableCell>
+          <TableCell>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {assigned.slice(0, 3).map((person, idx) => (
+                <Chip
+                  key={idx}
+                  label={person}
+                  size="small"
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    bgcolor: "#EEF2FF",
+                    color: "#4F46E5",
+                    height: 24,
+                  }}
+                />
+              ))}
+              {assigned.length > 3 && (
+                <Chip
+                  label={`+${assigned.length - 3}`}
+                  size="small"
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    bgcolor: "#F1F5F9",
+                    color: "#64748B",
+                    height: 24,
+                  }}
+                />
+              )}
+            </Box>
+          </TableCell>
         </TableRow>
       </TableBody>
     </Table>

@@ -10,7 +10,7 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import DoneIcon from "@mui/icons-material/Done";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -18,6 +18,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const FONT = "'Poppins', sans-serif";
 const theme = createTheme({
@@ -116,9 +117,6 @@ function OtpInput({ length = 6, onComplete }) {
     if (val && idx < length - 1) {
       focusInput(idx + 1);
     }
-    if (next.every((v) => v !== "")) {
-      onComplete?.(next.join(""));
-    }
   };
 
   const handleKeyDown = (idx, e) => {
@@ -143,76 +141,90 @@ function OtpInput({ length = 6, onComplete }) {
     focusInput(Math.min(text.length, length - 1));
     if (text.length === length) onComplete?.(text);
   };
+  const otp = values.join("");
 
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <div style={{ display: "flex", gap: 8 }}>
-          {values.map((val, idx) => (
-            <input
-              key={idx}
-              ref={(el) => (inputsRef.current[idx] = el)}
-              type='text'
-              inputMode='numeric'
-              maxLength={1}
-              value={val}
-              onChange={(e) => handleChange(idx, e)}
-              onKeyDown={(e) => handleKeyDown(idx, e)}
-              onPaste={handlePaste}
-              style={{
-                width: 40,
-                height: 48,
-                textAlign: "center",
-                fontSize: 20,
-                border: "1px solid #ccc",
-                borderRadius: 8,
-              }}
-            />
-          ))}
-        </div>
-        <Button
-          variant='contained'
-          startIcon={<DoneIcon />}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            px: 3,
-            py: 1,
-            fontWeight: 600,
-            mt: 2,
-            background: "#ffc400",
-          }}
-        >
-          Verify
-        </Button>
-      </ThemeProvider>
-    </>
+    <ThemeProvider theme={theme}>
+      <div style={{ display: "flex", gap: 8 }}>
+        {values.map((val, idx) => (
+          <input
+            key={idx}
+            ref={(el) => (inputsRef.current[idx] = el)}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={val}
+            onChange={(e) => handleChange(idx, e)}
+            onKeyDown={(e) => handleKeyDown(idx, e)}
+            onPaste={handlePaste}
+            style={{
+              width: 40,
+              height: 48,
+              textAlign: "center",
+              fontSize: 20,
+              border: "1px solid #ccc",
+              borderRadius: 8,
+            }}
+          />
+        ))}
+      </div>
+      <Button
+        variant="contained"
+        onClick={() => otp.length === length && onComplete(otp)}
+        startIcon={<DoneIcon />}
+        sx={{
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+          py: 1,
+          fontWeight: 600,
+          mt: 2,
+          background: "#ffc400",
+        }}
+      >
+        Verify
+      </Button>
+    </ThemeProvider>
   );
 }
 
 // ---------- ForgetPassword component ----------
-function ForgetPassword() {
+function ForgetPassword({ forgetPw }) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
 
-  //password
+  // password
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
 
+  const [showotpbar, setShowotpbar] = useState(false);
+
   // Validation helper
-  const validatePasswords = () => {
-    if (confirmPassword && password !== confirmPassword) {
+  const validatePasswords = (
+    newPassword = password,
+    newConfirmPassword = confirmPassword,
+  ) => {
+    if (!newPassword) {
+      setPasswordError("Password is required");
+      return false;
+    }
+
+    if (!newConfirmPassword) {
+      setPasswordError("Confirm Password is required");
+      return false;
+    }
+
+    if (newPassword !== newConfirmPassword) {
       setPasswordError("Passwords do not match");
       return false;
     }
+
     setPasswordError("");
     return true;
   };
@@ -220,11 +232,12 @@ function ForgetPassword() {
   // validate email
   const validateEmail = (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!value) {
+    const trimmed = value.trim();
+    if (!trimmed) {
       setEmailError("Email is required");
       return false;
     }
-    if (!emailRegex.test(value)) {
+    if (!emailRegex.test(trimmed)) {
       setEmailError("Please enter a valid email address");
       return false;
     }
@@ -235,27 +248,73 @@ function ForgetPassword() {
   //otp generation API
   const otpgeneration = async () => {
     if (!validateEmail(email)) return;
-    const payload = { email: email };
+    setErrorMessage("");
+    const payload = { email: email.trim() };
     await axios
-      .post("http://10.10.0.108:8000/generate-otp/", payload)
-      .then((res) => {
-        console.log(res.data);
-        alert(res.data);
-        setMessage("Otp Sent");
+      .post("http://10.10.0.108:8000/auth/forgotpassword", payload)
+      .then(() => {
+        setMessage("Otp Sent!");
+        setShowotpbar(true);
       })
       .catch((err) => {
         console.log(err);
+        setMessage("");
         setErrorMessage(err.response?.data?.message || "Something went wrong");
       });
   };
 
   //verify otp API
-  const handleOtpComplete = (code) => {
-    console.log("OTP entered:", code);
-    // call your verify-otp API here with `code`
+  const handleOtpComplete = async (code) => {
+    if (code.length !== 6) {
+      setErrorMessage("Please enter the 6-digit OTP");
+      return;
+    }
+    setErrorMessage("");
     const payload = {
+      email: email.trim(),
       otp: code,
     };
+
+    await axios
+      .post("http://10.10.0.108:8000/auth/verifyotp", payload)
+      .then((res) => {
+        setMessage(res.data.message || "OTP verified");
+        setShowotpbar(false);
+        setShowPw(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorMessage(err.response?.data?.detail || "Something went wrong");
+      });
+  };
+
+  //reset API
+  const reset = async () => {
+    if (!validatePasswords(password, confirmPassword)) {
+      return;
+    }
+    setErrorMessage("");
+    const payload = {
+      email: email.trim(),
+      new_password: password,
+    };
+    await axios
+      .post("http://10.10.0.108:8000/auth/resetpassword", payload)
+      .then((res) => {
+        setMessage(
+          typeof res.data === "string"
+            ? res.data
+            : "Password reset successful!",
+        );
+        setPassword("");
+        setConfirmPassword("");
+        setShowPw(false);
+        forgetPw();
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorMessage(err.response?.data?.message || "Something went wrong");
+      });
   };
 
   return (
@@ -288,6 +347,23 @@ function ForgetPassword() {
       >
         <Box
           sx={{
+            position: "absolute",
+            top: 2,
+            left: 2,
+            p: 1,
+            cursor: "pointer",
+          }}
+        >
+          <Link
+            onClick={() => {
+              forgetPw();
+            }}
+          >
+            <ArrowBackIcon />
+          </Link>
+        </Box>
+        <Box
+          sx={{
             width: "100%",
             maxWidth: 360,
             position: "relative",
@@ -308,74 +384,88 @@ function ForgetPassword() {
               Reset Password
             </Typography>
           </Box>
-          {error && (
-            <Alert severity='error' sx={{ mb: 2, fontFamily: FONT }}>
-              {error}
+
+          {errorMessage && (
+            <Alert severity="error" sx={{ mb: 2, fontFamily: FONT }}>
+              {errorMessage}
             </Alert>
           )}
-          <Box sx={{ mb: 2 }}>
-            <Typography
-              component='label'
-              sx={{
-                fontFamily: FONT,
-                display: "block",
-                fontSize: 12,
-                fontWeight: 600,
-                color: "#475569",
-                textTransform: "uppercase",
-                letterSpacing: "0.7px",
-                mb: 0.75,
-              }}
-            >
-              Enter Your Email
-            </Typography>
-            <TextField
-              type='email'
-              placeholder='Enter Your Registered Mail'
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (emailError) validateEmail(e.target.value);
-              }}
-              onBlur={(e) => validateEmail(e.target.value)}
-              error={!!emailError}
-              helperText={emailError}
-              autoComplete='email'
-              fullWidth
-              inputProps={{ style: { fontFamily: FONT } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position='start'>
-                    <EmailOutlinedIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
-          <Button
-            variant='contained'
-            color='primary'
-            endIcon={<SendIcon />}
-            onClick={otpgeneration}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              px: 3,
-              py: 1,
-              fontWeight: 600,
-            }}
-          >
-            Send OTP
-          </Button>{" "}
-          <span style={{ color: "gray", marginLeft: "5px" }}>{message}</span>
-          {open ? (
+          {message && !errorMessage && (
+            <Alert severity="success" sx={{ mb: 2, fontFamily: FONT }}>
+              {message}
+            </Alert>
+          )}
+
+          {showotpbar ? (
+            <OtpInput length={6} onComplete={handleOtpComplete} />
+          ) : (
+            !showPw && (
+              <Box>
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    component="label"
+                    sx={{
+                      fontFamily: FONT,
+                      display: "block",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "#475569",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.7px",
+                      mb: 0.75,
+                    }}
+                  >
+                    Enter Your Email
+                  </Typography>
+                  <TextField
+                    type="email"
+                    placeholder="Enter Your Registered Mail"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (emailError) validateEmail(e.target.value);
+                    }}
+                    onBlur={(e) => validateEmail(e.target.value)}
+                    error={!!emailError}
+                    helperText={emailError}
+                    autoComplete="email"
+                    fullWidth
+                    inputProps={{ style: { fontFamily: FONT } }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailOutlinedIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  endIcon={<SendIcon />}
+                  onClick={otpgeneration}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                    px: 3,
+                    py: 1,
+                    fontWeight: 600,
+                    mb: 2,
+                  }}
+                >
+                  Send OTP
+                </Button>
+              </Box>
+            )
+          )}
+
+          {showPw && (
             <Box>
-              <OtpInput length={6} onComplete={handleOtpComplete} />
-              <hr />
-              {/* New Password — unchanged, but keep its own showPw state */}
-              <Box sx={{ mb: 0.5 }}>
+              {/* New Password */}
+              <Box sx={{ mb: 2 }}>
                 <Typography
-                  component='label'
+                  component="label"
                   sx={{
                     fontFamily: FONT,
                     display: "block",
@@ -391,113 +481,117 @@ function ForgetPassword() {
                 </Typography>
                 <TextField
                   type={showPw ? "text" : "password"}
-                  placeholder='••••••••'
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (confirmPassword) validatePasswords(); // live revalidate
+                    const value = e.target.value;
+                    setPassword(value);
+                    if (confirmPassword) {
+                      validatePasswords(value, confirmPassword);
+                    }
                   }}
-                  autoComplete='new-password' // ← fix: was "current-password"
+                  autoComplete="new-password"
                   inputProps={{ style: { fontFamily: FONT } }}
                   InputProps={{
                     startAdornment: (
-                      <InputAdornment position='start'>
+                      <InputAdornment position="start">
                         <LockOutlinedIcon />
                       </InputAdornment>
                     ),
                     endAdornment: (
-                      <InputAdornment position='end'>
+                      <InputAdornment position="end">
                         <IconButton
                           onClick={() => setShowPw((v) => !v)}
-                          edge='end'
-                          size='small'
+                          edge="end"
+                          size="small"
                           sx={{ color: "#94A3B8" }}
                         >
                           {showPw ? (
-                            <VisibilityOffOutlinedIcon fontSize='small' />
+                            <VisibilityOffOutlinedIcon fontSize="small" />
                           ) : (
-                            <VisibilityOutlinedIcon fontSize='small' />
+                            <VisibilityOutlinedIcon fontSize="small" />
                           )}
                         </IconButton>
                       </InputAdornment>
                     ),
                   }}
                 />
-                {/* Confirm Password — now has its own state */}
-                <Box sx={{ mb: 0.5 }}>
-                  <Typography
-                    component='label'
-                    sx={{
-                      fontFamily: FONT,
-                      display: "block",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: "#475569",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.7px",
-                      mb: 0.75,
-                    }}
-                  >
-                    Confirm Password
-                  </Typography>
-                  <TextField
-                    type={showConfirmPw ? "text" : "password"} // ← own toggle
-                    placeholder='••••••••'
-                    value={confirmPassword} // ← own state
-                    onChange={(e) => {
-                      setConfirmPassword(e.target.value);
-                      validatePasswords(); // ← validate on change
-                    }}
-                    onBlur={validatePasswords} // ← also validate on blur
-                    error={!!passwordError} // ← shows red border
-                    helperText={passwordError} // ← shows error message
-                    autoComplete='new-password' // ← fix: was "current-password"
-                    inputProps={{ style: { fontFamily: FONT } }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <LockOutlinedIcon />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <IconButton
-                            onClick={() => setShowConfirmPw((v) => !v)}
-                            edge='end'
-                            size='small'
-                            sx={{ color: "#94A3B8" }}
-                          >
-                            {showConfirmPw ? (
-                              <VisibilityOffOutlinedIcon fontSize='small' />
-                            ) : (
-                              <VisibilityOutlinedIcon fontSize='small' />
-                            )}{" "}
-                            {/* ← own toggle */}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Box>
-                <Button
-                  variant='contained'
-                  startIcon={<RestartAltIcon />}
+              </Box>
+
+              {/* Confirm Password — sibling of New Password, not nested inside it */}
+              <Box sx={{ mb: 0.5 }}>
+                <Typography
+                  component="label"
                   sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    px: 3,
-                    py: 1,
+                    fontFamily: FONT,
+                    display: "block",
+                    fontSize: 12,
                     fontWeight: 600,
-                    mt: 2,
-                    background: "#7e57c2",
+                    color: "#475569",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.7px",
+                    mb: 0.75,
                   }}
                 >
-                  Reset
-                </Button>
+                  Confirm Password
+                </Typography>
+                <TextField
+                  type={showConfirmPw ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setConfirmPassword(value);
+                    validatePasswords(password, value);
+                  }}
+                  onBlur={() => validatePasswords(password, confirmPassword)}
+                  error={!!passwordError}
+                  helperText={passwordError}
+                  autoComplete="new-password"
+                  inputProps={{ style: { fontFamily: FONT } }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockOutlinedIcon />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowConfirmPw((v) => !v)}
+                          edge="end"
+                          size="small"
+                          sx={{ color: "#94A3B8" }}
+                        >
+                          {showConfirmPw ? (
+                            <VisibilityOffOutlinedIcon fontSize="small" />
+                          ) : (
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </Box>
+
+              <Button
+                variant="contained"
+                onClick={reset}
+                startIcon={<RestartAltIcon />}
+                sx={{
+                  borderRadius: 2,
+                  textTransform: "none",
+                  px: 3,
+                  py: 1,
+                  fontWeight: 600,
+                  mt: 2,
+                  background: "#7e57c2",
+                }}
+              >
+                Reset
+              </Button>
             </Box>
-          ) : (
-            ""
           )}
         </Box>
       </Box>

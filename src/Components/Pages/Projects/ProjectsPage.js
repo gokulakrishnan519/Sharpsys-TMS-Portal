@@ -224,7 +224,7 @@ function Success({ handleClose }) {
         </Typography>
         <Button
           onClick={handleClose}
-          variant='contained'
+          variant="contained"
           sx={{
             mt: 2,
             minWidth: 100,
@@ -278,7 +278,7 @@ function ProjectsPage() {
   const handleEdit = (project) => {
     console.log("Editing Project:", project);
 
-    // setSelectedProject(project);
+    setSelectedProject(project);
     setMode("edit");
     setOpen(true);
   };
@@ -301,8 +301,8 @@ function ProjectsPage() {
     await axios
       .get("http://10.10.0.108:8000/project/projectdetails")
       .then((res) => {
-        console.log(res.data.projects);
-        setPrjdetails(res.data.projects);
+        console.log(res.data);
+        setPrjdetails(res.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -387,7 +387,7 @@ function ProjectsPage() {
                   p: 2,
                 }}
               >
-                <Grid container spacing={3} justifyContent='center'>
+                <Grid container spacing={3} justifyContent="center">
                   {stats.map((stat, index) => (
                     <Grid item xs={12} sm={6} md={3} key={stat.label}>
                       <Box sx={{ pt: "22px" }}>
@@ -499,7 +499,7 @@ function ProjectsPage() {
             <Dialog
               open={showSuccess}
               onClose={() => setShowSuccess(false)}
-              maxWidth='xs'
+              maxWidth="xs"
               fullWidth
             >
               {/* <Success onClose={() => setShowSuccess(false)} /> */}
